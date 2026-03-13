@@ -30,13 +30,13 @@ export default function StoryBar() {
 
   return (
     <>
-      <div className="flex gap-3 overflow-x-auto py-3 px-4 scrollbar-none border-b border-border">
+      <div className="flex gap-3 overflow-x-auto py-3 px-4 scrollbar-none border-b border-white/[0.06]">
         {/* Add story button */}
         <button className="flex flex-col items-center gap-1.5 shrink-0">
-          <div className="w-16 h-16 rounded-full border-2 border-dashed border-border flex items-center justify-center bg-card">
-            <Plus className="w-5 h-5 text-text-muted" />
+          <div className="w-16 h-16 rounded-full border-2 border-dashed border-white/[0.15] flex items-center justify-center bg-white/[0.04]">
+            <Plus className="w-5 h-5 text-white/30" />
           </div>
-          <span className="text-[10px] text-text-muted">Your Story</span>
+          <span className="text-[10px] text-white/30">Your Story</span>
         </button>
 
         {storyUsers.map((storyUser, index) => (
@@ -50,7 +50,7 @@ export default function StoryBar() {
                 "p-[2px] rounded-full",
                 storyUser.has_unviewed
                   ? "bg-gradient-to-br from-primary to-primary-light"
-                  : "bg-border"
+                  : "bg-white/[0.15]"
               )}
             >
               <div className="p-[2px] bg-background rounded-full">

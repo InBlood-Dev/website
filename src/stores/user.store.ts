@@ -27,7 +27,7 @@ interface UserActions {
   updatePreferences: (prefs: {
     age_min?: number;
     age_max?: number;
-    max_distance?: number;
+    proximity_range?: number;
     interested_in?: string[];
   }) => Promise<void>;
   updateLocation: (lat: number, lng: number) => Promise<void>;

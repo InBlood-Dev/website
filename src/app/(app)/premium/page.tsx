@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { get as apiGet, post } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 import Header from "@/components/layout/Header";
-import Button from "@/components/ui/Button";
-import Card from "@/components/ui/Card";
 import { useUIStore } from "@/stores/ui.store";
 import { cn } from "@/lib/utils/cn";
 import type { SubscriptionPlan, SubscriptionStatusResponse } from "@/lib/api/types";
@@ -72,7 +70,6 @@ export default function PremiumPage() {
         plan_key: plan.plan_key,
       });
 
-      // In production, integrate Cashfree JS SDK here
       addToast({
         message: "Order created. Payment integration pending.",
         type: "info",
@@ -89,12 +86,14 @@ export default function PremiumPage() {
       <div className="h-full flex flex-col">
         <Header title="Premium" />
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="text-center max-w-md">
-            <Crown className="w-16 h-16 text-superlike mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">
-              You're Premium!
+          <div className="text-center max-w-xs">
+            <div className="w-16 h-16 rounded-full bg-superlike/10 flex items-center justify-center mx-auto mb-6">
+              <Crown className="w-7 h-7 text-superlike" />
+            </div>
+            <h2 className="text-xl font-medium text-white mb-2 tracking-tight">
+              You&apos;re Premium!
             </h2>
-            <p className="text-text-secondary mb-4">
+            <p className="text-white/30 text-sm leading-relaxed">
               Your {subscription.subscription?.plan_type} subscription is active
               until{" "}
               {subscription.subscription?.expires_at
@@ -113,52 +112,49 @@ export default function PremiumPage() {
 
       <div className="flex-1 overflow-y-auto p-6">
         {/* Hero */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-superlike to-amber-600 mx-auto mb-4 flex items-center justify-center shadow-lg">
-            <Crown className="w-10 h-10 text-white" />
+        <div className="text-center mb-10">
+          <div className="w-16 h-16 rounded-full bg-superlike/10 flex items-center justify-center mx-auto mb-5">
+            <Crown className="w-7 h-7 text-superlike" />
           </div>
-          <h1 className="text-3xl font-black text-white mb-2">
+          <h1 className="text-2xl font-medium text-white mb-2 tracking-tight">
             Upgrade to Premium
           </h1>
-          <p className="text-text-secondary text-lg">
+          <p className="text-white/30 text-sm">
             Get more matches and exclusive features
           </p>
         </div>
 
         {/* Plans */}
-        <div className="grid gap-4 max-w-md mx-auto mb-8">
+        <div className="grid gap-3 max-w-md mx-auto mb-10">
           {plans.map((plan) => (
             <button
               key={plan._id}
               onClick={() => setSelectedPlan(plan._id)}
               className={cn(
-                "relative p-5 rounded-2xl border-2 text-left transition-all",
+                "relative p-5 border rounded-xl text-left transition-all",
                 selectedPlan === plan._id
                   ? "border-primary bg-primary/5"
-                  : "border-border bg-card hover:border-border-light"
+                  : "border-white/[0.06] hover:border-white/[0.15] bg-white/[0.02]"
               )}
             >
               {plan.badge && (
-                <span
-                  className="absolute -top-3 right-4 px-3 py-1 rounded-full text-xs font-bold text-white"
-                  style={{ backgroundColor: plan.badge_color || "#E53935" }}
-                >
+                <span className="absolute -top-2.5 right-4 px-3 py-0.5 text-[10px] uppercase tracking-wider font-medium text-white bg-primary rounded-full">
                   {plan.badge}
                 </span>
               )}
               <div className="flex items-baseline justify-between mb-1">
-                <h3 className="text-lg font-bold text-white">{plan.name}</h3>
+                <h3 className="text-sm font-medium text-white">{plan.name}</h3>
                 <div className="text-right">
-                  <span className="text-2xl font-black text-white">
+                  <span className="text-2xl font-medium text-white tracking-tight">
                     {plan.currency === "INR" ? "₹" : "$"}{plan.price}
                   </span>
-                  <span className="text-text-muted text-sm">
+                  <span className="text-white/25 text-sm ml-1">
                     /{plan.period_label}
                   </span>
                 </div>
               </div>
               {plan.original_price && (
-                <p className="text-text-muted text-sm line-through">
+                <p className="text-white/20 text-xs line-through">
                   {plan.currency === "INR" ? "₹" : "$"}{plan.original_price}
                   {plan.discount_label && (
                     <span className="text-primary ml-2 no-underline">
@@ -173,24 +169,28 @@ export default function PremiumPage() {
 
         {/* Features */}
         {plans.length > 0 && selectedPlan && (
-          <div className="max-w-md mx-auto mb-8">
-            <h3 className="text-sm font-semibold text-text-secondary mb-4">
-              What's Included
+          <div className="max-w-md mx-auto mb-10">
+            <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-5">
+              What&apos;s Included
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               {plans
                 .find((p) => p._id === selectedPlan)
                 ?.features.map((feature, i) => (
                   <div key={i} className="flex items-center gap-3">
                     {feature.included ? (
-                      <Check className="w-5 h-5 text-success shrink-0" />
+                      <div className="w-5 h-5 rounded-full bg-success/15 flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 text-success" />
+                      </div>
                     ) : (
-                      <X className="w-5 h-5 text-text-muted shrink-0" />
+                      <div className="w-5 h-5 rounded-full bg-white/[0.04] flex items-center justify-center shrink-0">
+                        <X className="w-3.5 h-3.5 text-white/20" />
+                      </div>
                     )}
                     <span
                       className={cn(
                         "text-sm",
-                        feature.included ? "text-white" : "text-text-muted"
+                        feature.included ? "text-white" : "text-white/25"
                       )}
                     >
                       {feature.text}
@@ -202,16 +202,13 @@ export default function PremiumPage() {
         )}
 
         <div className="max-w-md mx-auto">
-          <Button
+          <button
             onClick={handlePurchase}
-            size="lg"
-            fullWidth
-            isLoading={isPurchasing}
-            disabled={!selectedPlan}
+            disabled={!selectedPlan || isPurchasing}
+            className="w-full py-4 bg-primary text-white text-sm uppercase tracking-[0.15em] hover:bg-primary-dark transition-colors disabled:opacity-50 rounded-full"
           >
-            <Crown className="w-5 h-5 mr-2" />
-            Upgrade Now
-          </Button>
+            {isPurchasing ? "Processing..." : "Upgrade Now"}
+          </button>
         </div>
       </div>
     </div>

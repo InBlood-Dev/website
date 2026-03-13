@@ -45,15 +45,22 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       },
 
       restoreSession: async () => {
+        // Wait for zustand persist hydration before reading state
+        await new Promise<void>((resolve) => {
+          const unsub = useAuthStore.persist.onFinishHydration(() => {
+            unsub();
+            resolve();
+          });
+          // If already hydrated, resolve immediately
+          if (useAuthStore.persist.hasHydrated()) resolve();
+        });
+
         const { accessToken, userId } = get();
+        console.log("[Auth] restoreSession — token:", accessToken ? "found" : "missing", "userId:", userId);
         if (accessToken && userId) {
           setAuthToken(accessToken);
           set({ isAuthenticated: true, isLoading: false });
-          try {
-            await initializeFirebaseAuth();
-          } catch {
-            // continue without firebase
-          }
+          initializeFirebaseAuth().catch(() => {});
         } else {
           set({ isLoading: false });
         }
@@ -95,9 +102,14 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             return false;
           }
 
+          console.log("[Auth] Backend user data:", JSON.stringify(userData, null, 2));
+
           const hasProfile =
             userData?.profile_complete === true ||
-            (userData?.gender && userData?.bio && userData?.interests?.length > 0);
+            userData?.is_profile_complete === true ||
+            userData?.profileComplete === true ||
+            !!(userData?.gender && userData?.bio) ||
+            !!(userData?.name && userData?.age && userData?.gender);
 
           // Sync token to API client
           setAuthToken(jwtAccessToken);
@@ -119,12 +131,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             hasCompletedProfileSetup: hasProfile,
           });
 
-          // Initialize Firebase (non-blocking)
-          try {
-            await initializeFirebaseAuth();
-          } catch {
-            // continue without firebase
-          }
+          // Initialize Firebase (truly non-blocking — don't await)
+          initializeFirebaseAuth().catch(() => {});
 
           return true;
         } catch {
@@ -151,7 +159,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           email: null,
           name: null,
           profilePicture: null,
-          hasCompletedProfileSetup: false,
         });
       },
 

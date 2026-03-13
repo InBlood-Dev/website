@@ -45,11 +45,22 @@ export const useFeedStore = create<FeedState & FeedActions>()((set, get) => ({
   fetchFeed: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await apiGet<DiscoveryFeedResponse>(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await apiGet<any>(
         ENDPOINTS.DISCOVERY.FEED
       );
+      // Backend returns profiles (not users), with primary_photo sometimes null
+      const rawProfiles = response.data?.profiles || response.data?.users || [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const users = rawProfiles.map((p: any) => ({
+        ...p,
+        user_id: p.user_id || p._id,
+        primary_photo: p.primary_photo || p.photos?.[0] || null,
+        tags: Array.isArray(p.tags) ? p.tags : [],
+        relationship_types: Array.isArray(p.relationship_types) ? p.relationship_types : [],
+      }));
       set({
-        users: response.data.users,
+        users,
         currentIndex: 0,
         isLoading: false,
       });
@@ -63,7 +74,7 @@ export const useFeedStore = create<FeedState & FeedActions>()((set, get) => ({
 
   like: async (userId) => {
     const response = await post<LikeResponse>(ENDPOINTS.INTERACTIONS.LIKE, {
-      liked_user_id: userId,
+      target_user_id: userId,
     });
 
     if (response.data.is_matched && response.data.match) {
@@ -98,7 +109,7 @@ export const useFeedStore = create<FeedState & FeedActions>()((set, get) => ({
   superLike: async (userId) => {
     const response = await post<SuperLikeResponse>(
       ENDPOINTS.INTERACTIONS.SUPER_LIKE,
-      { liked_user_id: userId }
+      { target_user_id: userId }
     );
 
     if (response.data.is_matched && response.data.match) {
@@ -118,7 +129,7 @@ export const useFeedStore = create<FeedState & FeedActions>()((set, get) => ({
 
   pass: async (userId) => {
     const response = await post<PassResponse>(ENDPOINTS.INTERACTIONS.PASS, {
-      passed_user_id: userId,
+      target_user_id: userId,
     });
     return response.data;
   },

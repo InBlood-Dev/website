@@ -5,7 +5,7 @@ import { forwardRef, type ButtonHTMLAttributes } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "danger" | "outline";
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   isLoading?: boolean;
   fullWidth?: boolean;
 }
@@ -28,24 +28,25 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "inline-flex items-center justify-center font-medium rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+          "disabled:opacity-40 disabled:cursor-not-allowed",
           {
             "bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/20":
               variant === "primary",
-            "bg-card hover:bg-card-light text-white border border-border":
+            "bg-white/[0.06] hover:bg-white/[0.1] text-white border border-white/[0.08]":
               variant === "secondary",
-            "bg-transparent hover:bg-card text-text-secondary hover:text-white":
+            "bg-transparent hover:bg-white/[0.06] text-white/50 hover:text-white":
               variant === "ghost",
-            "bg-error/10 hover:bg-error/20 text-error border border-error/20":
+            "bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20":
               variant === "danger",
-            "border border-border hover:border-primary text-white bg-transparent":
+            "border border-white/[0.1] hover:border-white/[0.2] text-white bg-transparent hover:bg-white/[0.04]":
               variant === "outline",
           },
           {
-            "px-3 py-1.5 text-sm": size === "sm",
-            "px-5 py-2.5 text-base": size === "md",
-            "px-7 py-3.5 text-lg": size === "lg",
+            "px-4 py-2 text-sm": size === "sm",
+            "px-6 py-3 text-sm": size === "md",
+            "px-8 py-4 text-[15px]": size === "lg",
+            "px-10 py-5 text-lg": size === "xl",
           },
           fullWidth && "w-full",
           className

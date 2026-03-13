@@ -9,7 +9,8 @@ import SwipeActions from "@/components/feed/SwipeActions";
 import MatchModal from "@/components/feed/MatchModal";
 import Header from "@/components/layout/Header";
 import Skeleton from "@/components/ui/Skeleton";
-import { RefreshCw, Flame } from "lucide-react";
+import Image from "next/image";
+import { RefreshCw } from "lucide-react";
 
 export default function FeedPage() {
   const router = useRouter();
@@ -34,8 +35,8 @@ export default function FeedPage() {
     fetchDailyLimits();
   }, [fetchFeed, fetchDailyLimits]);
 
-  const currentUser = users[currentIndex];
-  const nextUser = users[currentIndex + 1];
+  const currentUser = users?.[currentIndex];
+  const nextUser = users?.[currentIndex + 1];
 
   const handleSwipe = useCallback(
     async (direction: "left" | "right" | "up") => {
@@ -71,47 +72,66 @@ export default function FeedPage() {
 
   // Load more when running low
   useEffect(() => {
-    if (currentIndex >= users.length - 3 && users.length > 0 && !isLoading) {
+    if (currentIndex >= (users?.length ?? 0) - 3 && (users?.length ?? 0) > 0 && !isLoading) {
       fetchFeed();
     }
-  }, [currentIndex, users.length, isLoading, fetchFeed]);
+  }, [currentIndex, users?.length, isLoading, fetchFeed]);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col relative">
+      {/* Ambient background glow */}
+      <div className="fixed top-[20%] left-[50%] -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-primary/[0.025] blur-[120px] pointer-events-none" />
+
       <Header title="Discover">
         {dailyLimits && dailyLimits.swipes.remaining !== null && (
-          <span className="text-sm text-text-secondary">
-            {dailyLimits.swipes.remaining} swipes left
-          </span>
+          <div className="flex items-center gap-2.5">
+            <div className="h-1.5 w-20 rounded-full bg-white/[0.06] overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-primary to-primary-light rounded-full transition-all"
+                style={{
+                  width: `${Math.min(100, ((dailyLimits.swipes.remaining || 0) / (dailyLimits.swipes.daily_limit || 1)) * 100)}%`,
+                }}
+              />
+            </div>
+            <span className="text-[11px] text-white/25 uppercase tracking-wider">
+              {dailyLimits.swipes.remaining} left
+            </span>
+          </div>
         )}
       </Header>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 gap-6">
-        {isLoading && users.length === 0 ? (
-          <div className="w-full max-w-[400px] aspect-[3/4.5] rounded-3xl">
-            <Skeleton className="w-full h-full rounded-3xl" variant="rectangular" />
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 gap-8 relative z-10">
+        {isLoading && (users?.length ?? 0) === 0 ? (
+          <div className="w-full max-w-[400px] aspect-[3/4.5] rounded-2xl">
+            <Skeleton className="w-full h-full rounded-2xl" variant="rectangular" />
           </div>
         ) : !currentUser ? (
-          <div className="text-center py-20">
-            <Flame className="w-16 h-16 text-text-muted mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">
-              No more profiles
+          <div className="text-center py-20 max-w-xs mx-auto">
+            <div className="relative w-20 h-20 mx-auto mb-8">
+              <div className="absolute inset-0 rounded-full bg-primary/20 blur-[15px]" />
+              <div className="relative z-10 w-20 h-20 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
+                <Image src="/logo.png" alt="InBlood" width={40} height={40} className="rounded-xl" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-light text-white mb-2 tracking-tight">
+              No more <span className="gradient-text font-medium">profiles</span>
             </h2>
-            <p className="text-text-secondary mb-6">
-              Check back later for new people
+            <p className="text-white/25 mb-10 text-sm leading-relaxed">
+              Check back later for new people near you
             </p>
             <button
               onClick={fetchFeed}
-              className="flex items-center gap-2 mx-auto text-primary hover:text-primary-light transition-colors"
+              className="inline-flex items-center gap-2.5 px-7 py-3 bg-white/[0.04] border border-white/[0.08] text-white/40 hover:text-white hover:border-white/[0.15] hover:bg-white/[0.06] transition-all text-sm rounded-full"
             >
-              <RefreshCw className="w-5 h-5" />
+              <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
           </div>
         ) : (
           <>
-            {/* Card stack */}
+            {/* Card stack with glow */}
             <div className="relative w-full max-w-[400px] aspect-[3/4.5]">
+              <div className="absolute inset-x-4 -bottom-4 h-20 bg-primary/[0.04] blur-[30px] rounded-full" />
               {nextUser && (
                 <SwipeCard key={nextUser.user_id} user={nextUser} onSwipe={() => {}} />
               )}
@@ -131,8 +151,8 @@ export default function FeedPage() {
             />
 
             {/* Keyboard hint */}
-            <p className="text-text-muted text-xs hidden md:block">
-              Use arrow keys: ← Pass · → Like · ↑ Super Like
+            <p className="text-white/[0.07] text-[11px] hidden md:block tracking-[0.2em] uppercase">
+              Arrow Keys: Pass / Like / Super Like
             </p>
           </>
         )}

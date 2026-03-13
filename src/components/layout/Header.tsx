@@ -1,7 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
-import { Flame } from "lucide-react";
 
 interface HeaderProps {
   title?: string;
@@ -13,17 +13,20 @@ export default function Header({ title, children, className }: HeaderProps) {
   return (
     <header
       className={cn(
-        "flex items-center justify-between h-14 px-4 md:px-6 border-b border-border bg-card/80 backdrop-blur-xl sticky top-0 z-40",
+        "relative flex items-center justify-between h-14 px-5 md:px-8 bg-background/60 backdrop-blur-2xl sticky top-0 z-40",
         className
       )}
     >
       <div className="flex items-center gap-3">
-        <div className="md:hidden w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-          <Flame className="w-4 h-4 text-white" />
+        <div className="relative w-8 h-8 flex items-center justify-center md:hidden">
+          <div className="absolute inset-0 rounded-full bg-primary/25 blur-[8px]" />
+          <Image src="/logo.png" alt="InBlood" width={28} height={28} className="relative z-10 rounded-lg object-contain" />
         </div>
-        {title && <h1 className="text-lg font-bold text-white">{title}</h1>}
+        {title && <h1 className="text-[13px] font-medium text-white uppercase tracking-[0.15em]">{title}</h1>}
       </div>
-      {children && <div className="flex items-center gap-2">{children}</div>}
+      {children && <div className="flex items-center gap-3">{children}</div>}
+      {/* Gradient bottom line */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
     </header>
   );
 }

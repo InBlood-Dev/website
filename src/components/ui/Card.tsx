@@ -22,11 +22,11 @@ export default function Card({
       className={cn(
         "rounded-2xl",
         {
-          "bg-card": variant === "default",
+          "bg-white/[0.04]": variant === "default",
           "glass": variant === "glass",
-          "bg-card border border-border": variant === "bordered",
+          "bg-white/[0.04] border border-white/[0.08]": variant === "bordered",
         },
-        hover && "hover:bg-card-light transition-colors duration-200 cursor-pointer",
+        hover && "hover:bg-white/[0.06] transition-colors duration-200 cursor-pointer",
         {
           "p-0": padding === "none",
           "p-3": padding === "sm",

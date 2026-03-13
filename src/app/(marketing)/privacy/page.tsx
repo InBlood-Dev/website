@@ -1,17 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { Flame } from "lucide-react";
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background">
-      <nav className="border-b border-border">
+      <nav className="border-b border-white/[0.06]">
         <div className="max-w-4xl mx-auto flex items-center justify-between h-16 px-6">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center">
-              <Flame className="w-4 h-4 text-white" />
-            </div>
+            <Image src="/logo.png" alt="InBlood" width={32} height={32} className="rounded-lg" />
             <span className="text-lg font-bold text-white">InBlood</span>
           </Link>
         </div>
@@ -19,7 +17,7 @@ export default function PrivacyPage() {
 
       <main className="max-w-3xl mx-auto px-6 py-16">
         <h1 className="text-4xl font-black text-white mb-6">Privacy Policy</h1>
-        <div className="text-text-secondary space-y-6 leading-relaxed">
+        <div className="text-white/50 space-y-6 leading-relaxed">
           <p>Last updated: March 2026</p>
 
           <h2 className="text-xl font-bold text-white pt-4">

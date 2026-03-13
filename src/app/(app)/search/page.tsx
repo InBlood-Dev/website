@@ -30,7 +30,7 @@ export default function SearchPage() {
       const response = await apiGet<SearchResponse>(ENDPOINTS.SEARCH, {
         q: q.trim(),
       });
-      setResults(response.data.users || []);
+      setResults(response.data?.users || response.data?.profiles || []);
       setHasSearched(true);
     } catch {
       setResults([]);
@@ -49,7 +49,7 @@ export default function SearchPage() {
     <div className="h-full flex flex-col">
       <Header title="Search" />
 
-      <div className="p-4">
+      <div className="px-5 py-4">
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -59,32 +59,41 @@ export default function SearchPage() {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4">
+      <div className="flex-1 overflow-y-auto px-5">
         {isSearching ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="flex items-center gap-3 p-3">
                 <Skeleton variant="circular" className="w-12 h-12" />
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   <Skeleton className="w-32 h-4" />
                   <Skeleton className="w-20 h-3" />
                 </div>
               </div>
             ))}
           </div>
+        ) : !hasSearched && !query ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-14 h-14 rounded-full bg-white/[0.04] flex items-center justify-center mb-5">
+              <SearchIcon className="w-6 h-6 text-white/15" />
+            </div>
+            <p className="text-white/25 text-sm text-center max-w-xs">
+              Search for people by name
+            </p>
+          </div>
         ) : hasSearched && results.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-text-secondary">
+          <div className="text-center py-16">
+            <p className="text-white/25 text-sm">
               No results for &quot;{query}&quot;
             </p>
           </div>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             {results.map((user) => (
               <button
                 key={user.user_id}
                 onClick={() => router.push(`/profile/${user.user_id}`)}
-                className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-card transition-colors text-left"
+                className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/[0.04] transition-all text-left"
               >
                 <Avatar
                   src={user.primary_photo}
@@ -93,11 +102,11 @@ export default function SearchPage() {
                   isVerified={user.is_verified}
                 />
                 <div>
-                  <p className="text-sm font-semibold text-white">
+                  <p className="text-sm font-medium text-white">
                     {user.name}, {user.age}
                   </p>
                   {user.location_city && (
-                    <p className="text-xs text-text-muted flex items-center gap-1">
+                    <p className="text-xs text-white/30 flex items-center gap-1 mt-0.5">
                       <MapPin className="w-3 h-3" />
                       {user.location_city}
                       {user.distance !== undefined &&

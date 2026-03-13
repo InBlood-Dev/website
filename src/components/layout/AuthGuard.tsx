@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Image from "next/image";
 import { useAuthStore } from "@/stores/auth.store";
-import { Flame } from "lucide-react";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -19,12 +19,24 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    console.log("[AuthGuard] Initializing...");
     _initUnauthorizedHandler();
-    restoreSession().then(() => setReady(true));
+    restoreSession().then(() => {
+      const state = useAuthStore.getState();
+      console.log("[AuthGuard] Session restored:", {
+        isAuthenticated: state.isAuthenticated,
+        hasCompletedProfileSetup: state.hasCompletedProfileSetup,
+        hasToken: !!state.accessToken,
+        userId: state.userId,
+      });
+      setReady(true);
+    });
   }, []);
 
   useEffect(() => {
     if (!ready) return;
+
+    console.log("[AuthGuard] Routing check:", { isAuthenticated, hasCompletedProfileSetup, pathname });
 
     if (!isAuthenticated) {
       router.replace("/login");
@@ -47,10 +59,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center animate-pulse">
-            <Flame className="w-8 h-8 text-white" />
-          </div>
-          <p className="text-text-secondary text-sm">Loading...</p>
+          <Image src="/logo.png" alt="InBlood" width={64} height={64} className="rounded-xl animate-pulse" />
+          <p className="text-white/40 text-sm">Loading...</p>
         </div>
       </div>
     );

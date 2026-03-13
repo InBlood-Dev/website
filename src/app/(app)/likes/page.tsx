@@ -38,21 +38,20 @@ export default function LikesPage() {
       <div className="h-full flex flex-col">
         <Header title="Likes" />
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="text-center max-w-sm">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-primary-dark mx-auto mb-6 flex items-center justify-center">
-              <Lock className="w-10 h-10 text-white" />
+          <div className="text-center max-w-xs">
+            <div className="w-16 h-16 rounded-full bg-white/[0.04] flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-7 h-7 text-white/15" />
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">
+            <h2 className="text-xl font-medium text-white mb-2 tracking-tight">
               See Who Likes You
             </h2>
-            <p className="text-text-secondary mb-6">
+            <p className="text-white/30 mb-8 text-sm leading-relaxed">
               Upgrade to Premium to see everyone who has liked your profile
             </p>
             <button
               onClick={() => router.push("/premium")}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary rounded-xl text-white font-semibold hover:bg-primary-dark transition-colors"
+              className="px-8 py-3.5 bg-primary text-white text-sm uppercase tracking-[0.15em] hover:bg-primary-dark transition-colors rounded-full"
             >
-              <Crown className="w-5 h-5" />
               Upgrade to Premium
             </button>
           </div>
@@ -65,9 +64,9 @@ export default function LikesPage() {
     <div className="h-full flex flex-col">
       <Header title={`Likes${data ? ` (${data.count})` : ""}`} />
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6">
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton
                 key={i}
@@ -77,40 +76,49 @@ export default function LikesPage() {
             ))}
           </div>
         ) : data?.likes.length === 0 ? (
-          <div className="text-center py-20">
-            <Heart className="w-16 h-16 text-text-muted mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">
+          <div className="flex flex-col items-center justify-center py-24">
+            <div className="w-14 h-14 rounded-full bg-white/[0.04] flex items-center justify-center mb-5">
+              <Heart className="w-6 h-6 text-white/20" />
+            </div>
+            <h2 className="text-lg font-medium text-white mb-2 tracking-tight">
               No likes yet
             </h2>
-            <p className="text-text-secondary">
+            <p className="text-white/30 text-sm text-center max-w-xs leading-relaxed">
               Keep your profile active to receive more likes
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {data?.likes.map((like) => (
               <button
                 key={like.like_id}
                 onClick={() => router.push(`/profile/${like.user.user_id}`)}
-                className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-card group"
+                className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white/[0.04] group border border-white/[0.06] hover:border-white/[0.15] transition-all duration-300"
               >
-                <Image
-                  src={like.user.primary_photo}
-                  alt={like.user.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform"
-                  sizes="(max-width: 768px) 50vw, 33vw"
-                />
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
+                {like.user.primary_photo ? (
+                  <Image
+                    src={like.user.primary_photo}
+                    alt={like.user.name}
+                    fill
+                    className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-white/[0.04]">
+                    <span className="text-3xl text-white/20">{like.user.name?.[0]?.toUpperCase()}</span>
+                  </div>
+                )}
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                 {like.is_super_like && (
                   <div className="absolute top-3 right-3">
-                    <Star className="w-5 h-5 text-superlike fill-superlike" />
+                    <Star className="w-5 h-5 text-superlike fill-superlike drop-shadow-lg" />
                   </div>
                 )}
 
-                <div className="absolute bottom-3 left-3">
-                  <p className="text-white font-semibold text-sm">
+                <div className="absolute bottom-3 left-3.5">
+                  <p className="text-white font-medium text-[13px]">
                     {like.user.name}, {like.user.age}
                   </p>
                 </div>

@@ -142,10 +142,10 @@ export interface RecommendedUser {
   match_score: number;
   seductions_count: number;
   hearts_count: number;
-  primary_photo: string;
-  photos: string[];
-  tags: { name: string; category?: string }[];
-  relationship_types: ApiRelationshipType[];
+  primary_photo: string | null;
+  photos?: string[];
+  tags?: (string | { name: string; category?: string })[];
+  relationship_types?: ApiRelationshipType[];
   sexual_orientation?: string;
   pronouns?: string;
 }
@@ -307,14 +307,15 @@ export interface SearchUser {
   user_id: string;
   name: string;
   age: number;
-  primary_photo: string;
+  primary_photo: string | null;
   is_verified: boolean;
   distance?: number;
   location_city?: string;
 }
 
 export interface SearchResponse {
-  users: SearchUser[];
+  users?: SearchUser[];
+  profiles?: SearchUser[];
   total: number;
 }
 
@@ -339,7 +340,7 @@ export interface ApiUserProfile {
   primary_photo?: string | null;
   photos?: ApiPhoto[];
   interests?: string[];
-  tags?: ApiTag[];
+  tags?: (string | ApiTag)[];
   prompts?: ApiPrompt[];
   opening_moves?: ApiPrompt[];
   pronouns?: string | null;

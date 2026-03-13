@@ -30,15 +30,15 @@ export default function Chip({
       className={cn(
         "inline-flex items-center gap-1 rounded-full font-medium transition-all duration-200",
         {
-          "bg-card-light text-text-secondary": variant === "default" && !selected,
+          "bg-white/[0.06] text-white/50": variant === "default" && !selected,
           "bg-primary/15 text-primary border border-primary/30":
             variant === "primary" || selected,
-          "border border-border text-text-secondary hover:border-primary hover:text-primary":
+          "border border-white/[0.1] text-white/40 hover:border-primary/50 hover:text-primary hover:bg-primary/5":
             variant === "outline" && !selected,
         },
         {
           "px-2.5 py-1 text-xs": size === "sm",
-          "px-3.5 py-1.5 text-sm": size === "md",
+          "px-4 py-2 text-sm": size === "md",
         },
         onClick && "cursor-pointer",
         className

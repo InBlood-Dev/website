@@ -28,7 +28,7 @@ export default function SwipeCard({ user, onSwipe, isTop = false }: SwipeCardPro
   const passOpacity = useTransform(x, [-100, 0], [1, 0]);
   const superLikeOpacity = useTransform(y, [-100, 0], [1, 0]);
 
-  const photos = user.photos.length > 0 ? user.photos : [user.primary_photo];
+  const photos: string[] = (user.photos && user.photos.length > 0) ? user.photos : user.primary_photo ? [user.primary_photo] : [];
 
   const handleDragEnd = useCallback(
     (_: unknown, info: PanInfo) => {
@@ -65,20 +65,27 @@ export default function SwipeCard({ user, onSwipe, isTop = false }: SwipeCardPro
       style={{ x, y, rotate }}
       whileDrag={{ cursor: "grabbing" }}
       className={cn(
-        "absolute w-full max-w-[400px] aspect-[3/4.5] rounded-3xl overflow-hidden select-none",
-        isTop ? "cursor-grab z-10" : "z-0"
+        "absolute w-full max-w-[400px] aspect-[3/4.5] rounded-2xl overflow-hidden select-none",
+        isTop ? "cursor-grab z-10" : "z-0 scale-[0.97] opacity-60"
       )}
     >
       {/* Photo */}
-      <div className="absolute inset-0 bg-card">
-        <Image
-          src={photos[photoIndex]}
-          alt={user.name}
-          fill
-          className="object-cover"
-          priority={isTop}
-          sizes="400px"
-        />
+      <div className="absolute inset-0 bg-white/[0.04]">
+        {photos[photoIndex] ? (
+          <Image
+            src={photos[photoIndex]}
+            alt={user.name}
+            fill
+            className="object-cover"
+            priority={isTop}
+            sizes="400px"
+            unoptimized
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-4xl text-white/20">{user.name?.[0]?.toUpperCase()}</span>
+          </div>
+        )}
       </div>
 
       {/* Photo navigation dots */}
@@ -142,7 +149,7 @@ export default function SwipeCard({ user, onSwipe, isTop = false }: SwipeCardPro
       {/* User info */}
       <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="text-2xl font-bold text-white">
+          <h3 className="text-2xl font-medium text-white tracking-tight">
             {user.name}, {user.age}
           </h3>
           {user.is_verified && (
@@ -150,7 +157,7 @@ export default function SwipeCard({ user, onSwipe, isTop = false }: SwipeCardPro
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 text-text-secondary text-sm mb-3">
+        <div className="flex items-center gap-1.5 text-white/40 text-sm mb-3">
           <MapPin className="w-3.5 h-3.5" />
           <span>
             {user.location_city}
@@ -164,16 +171,16 @@ export default function SwipeCard({ user, onSwipe, isTop = false }: SwipeCardPro
           </p>
         )}
 
-        {user.tags.length > 0 && (
+        {user.tags && user.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {user.tags.slice(0, 4).map((tag, i) => (
-              <Chip key={i} label={tag.name} size="sm" />
+              <Chip key={i} label={typeof tag === "string" ? tag : tag.name} size="sm" />
             ))}
           </div>
         )}
 
         {/* Relationship types */}
-        {user.relationship_types.length > 0 && (
+        {user.relationship_types && user.relationship_types.length > 0 && (
           <div className="flex gap-1.5 mt-2">
             {user.relationship_types.map((rt, i) => (
               <span

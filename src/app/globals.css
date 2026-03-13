@@ -2,7 +2,7 @@
 
 @theme inline {
   /* Colors - InBlood dark theme */
-  --color-background: #0B0B0B;
+  --color-background: #080808;
   --color-foreground: #FFFFFF;
   --color-card: #151515;
   --color-card-light: #1A1A1A;
@@ -27,26 +27,26 @@
   --color-overlay-light: rgba(0, 0, 0, 0.5);
 
   /* Fonts */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  --font-mono: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #2A2A2A #0B0B0B;
+  scrollbar-color: rgba(255,255,255,0.06) transparent;
 }
 
 *::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 *::-webkit-scrollbar-track {
-  background: #0B0B0B;
+  background: transparent;
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #2A2A2A;
-  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
 }
 
 body {
@@ -79,12 +79,59 @@ body {
 
 /* Glass effect */
 .glass {
-  background: rgba(21, 21, 21, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(12, 12, 12, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
 /* Prevent body scroll when modal is open */
 body.modal-open {
   overflow: hidden;
+}
+
+/* Nav slide-in animation */
+@keyframes navSlide {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Scroll indicator animation */
+@keyframes scrollLine {
+  0% { transform: translateY(-100%); }
+  50% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+/* Gradient border utility */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(229, 57, 53, 0.4), rgba(255, 111, 97, 0.15), rgba(255, 255, 255, 0.03));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Card ambient glow */
+.card-glow {
+  box-shadow: 0 0 80px -20px rgba(229, 57, 53, 0.06), 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+}
+
+/* Noise texture overlay */
+.noise::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 9999;
 }

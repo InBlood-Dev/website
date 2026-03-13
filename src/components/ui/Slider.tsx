@@ -28,22 +28,22 @@ export default function Slider({
   return (
     <div className={cn("w-full", className)}>
       {(label || showValue) && (
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           {label && (
-            <span className="text-sm font-medium text-text-secondary">
+            <span className="text-sm text-white/50">
               {label}
             </span>
           )}
           {showValue && (
-            <span className="text-sm font-semibold text-white">
+            <span className="text-sm font-medium text-white tabular-nums">
               {value}
               {suffix}
             </span>
           )}
         </div>
       )}
-      <div className="relative h-2">
-        <div className="absolute inset-0 rounded-full bg-card-light" />
+      <div className="relative h-1.5">
+        <div className="absolute inset-0 rounded-full bg-white/[0.08]" />
         <div
           className="absolute inset-y-0 left-0 rounded-full bg-primary"
           style={{ width: `${percentage}%` }}
@@ -57,8 +57,8 @@ export default function Slider({
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white shadow-lg border-2 border-primary pointer-events-none"
-          style={{ left: `calc(${percentage}% - 10px)` }}
+          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white shadow-lg shadow-black/30 pointer-events-none ring-2 ring-primary"
+          style={{ left: `calc(${percentage}% - 8px)` }}
         />
       </div>
     </div>

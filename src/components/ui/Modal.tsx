@@ -58,7 +58,7 @@ export default function Modal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-overlay"
+            className="absolute inset-0 bg-black/70"
             onClick={onClose}
           />
           <motion.div
@@ -67,20 +67,20 @@ export default function Modal({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.3 }}
             className={cn(
-              "relative w-full bg-card rounded-2xl shadow-2xl border border-border",
+              "relative w-full bg-[#111113] rounded-2xl shadow-2xl border border-white/[0.08]",
               sizeMap[size],
               className
             )}
           >
             {(title || showClose) && (
-              <div className="flex items-center justify-between p-5 border-b border-border">
+              <div className="flex items-center justify-between p-5 border-b border-white/[0.08]">
                 {title && (
                   <h2 className="text-lg font-semibold text-white">{title}</h2>
                 )}
                 {showClose && (
                   <button
                     onClick={onClose}
-                    className="p-1.5 rounded-lg hover:bg-card-light text-text-muted hover:text-white transition-colors"
+                    className="p-1.5 rounded-full hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>

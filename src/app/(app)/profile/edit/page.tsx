@@ -93,22 +93,26 @@ export default function EditProfilePage() {
   return (
     <div className="h-full flex flex-col">
       <Header title="Edit Profile">
-        <Button onClick={handleSave} size="sm" isLoading={isSaving}>
-          Save
-        </Button>
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="px-5 py-1.5 bg-primary text-white text-sm rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50"
+        >
+          {isSaving ? "Saving..." : "Save"}
+        </button>
       </Header>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-8">
         {/* Photos */}
         <div>
-          <h3 className="text-sm font-semibold text-text-secondary mb-3">
+          <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-3">
             Photos
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {photos.map((photo) => (
               <div
                 key={photo._id}
-                className="relative aspect-[3/4] rounded-xl overflow-hidden bg-card group"
+                className="relative aspect-[3/4] rounded-xl overflow-hidden bg-white/[0.04] group border border-white/[0.06]"
               >
                 <Image
                   src={photo.url}
@@ -121,29 +125,29 @@ export default function EditProfilePage() {
                   {!photo.is_primary && (
                     <button
                       onClick={() => handleSetPrimary(photo._id)}
-                      className="px-2 py-1 bg-primary rounded text-white text-xs font-medium"
+                      className="px-3 py-1.5 bg-primary rounded-full text-white text-xs font-medium"
                     >
                       Set Primary
                     </button>
                   )}
                   <button
                     onClick={() => handleDeletePhoto(photo._id)}
-                    className="p-1.5 bg-error rounded text-white"
+                    className="p-2 bg-error/90 rounded-full text-white"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
                 {photo.is_primary && (
-                  <span className="absolute top-2 left-2 text-[10px] font-bold bg-primary px-2 py-0.5 rounded-full text-white">
-                    PRIMARY
+                  <span className="absolute top-2 left-2 text-[10px] font-medium bg-primary px-2 py-0.5 rounded-full text-white uppercase tracking-wider">
+                    Primary
                   </span>
                 )}
               </div>
             ))}
             {photos.length < 6 && (
-              <label className="aspect-[3/4] rounded-xl border-2 border-dashed border-border hover:border-primary flex flex-col items-center justify-center cursor-pointer transition-colors bg-card/50">
-                <Plus className="w-8 h-8 text-text-muted mb-1" />
-                <span className="text-xs text-text-muted">Add Photo</span>
+              <label className="aspect-[3/4] rounded-xl border-2 border-dashed border-white/[0.1] hover:border-primary/50 flex flex-col items-center justify-center cursor-pointer transition-colors bg-white/[0.02]">
+                <Plus className="w-7 h-7 text-white/20 mb-1" />
+                <span className="text-xs text-white/25">Add Photo</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -156,14 +160,14 @@ export default function EditProfilePage() {
         </div>
 
         {/* Basic info */}
-        <div className="space-y-4">
+        <div className="space-y-5">
           <Input
             label="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1.5">
+            <label className="block text-[11px] uppercase tracking-[0.2em] text-white/25 mb-2">
               Bio
             </label>
             <textarea
@@ -171,9 +175,9 @@ export default function EditProfilePage() {
               onChange={(e) => setBio(e.target.value)}
               maxLength={500}
               rows={4}
-              className="w-full bg-card border border-border rounded-xl px-4 py-3 text-white placeholder:text-text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+              className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 transition-colors resize-none"
             />
-            <p className="text-right text-xs text-text-muted mt-1">
+            <p className="text-right text-xs text-white/20 mt-1">
               {bio.length}/500
             </p>
           </div>

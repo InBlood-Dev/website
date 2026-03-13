@@ -38,7 +38,7 @@ export default function UserProfilePage() {
 
         // Track profile view
         post(ENDPOINTS.INTERACTIONS.PROFILE_VIEW, {
-          viewed_user_id: userId,
+          target_user_id: userId,
           source: "profile",
         }).catch(() => {});
       } catch {
@@ -60,7 +60,7 @@ export default function UserProfilePage() {
     );
   }
 
-  const photos = profile.photos?.map((p) => p.url) || [];
+  const photos = profile.photos?.map((p) => typeof p === "string" ? p : p.url).filter(Boolean) || [];
   if (profile.primary_photo && !photos.includes(profile.primary_photo)) {
     photos.unshift(profile.primary_photo);
   }
@@ -68,7 +68,7 @@ export default function UserProfilePage() {
 
   const handleLike = async () => {
     try {
-      await post(ENDPOINTS.INTERACTIONS.LIKE, { liked_user_id: userId });
+      await post(ENDPOINTS.INTERACTIONS.LIKE, { target_user_id: userId });
       router.back();
     } catch {
       // handle
@@ -77,7 +77,25 @@ export default function UserProfilePage() {
 
   const handlePass = async () => {
     try {
-      await post(ENDPOINTS.INTERACTIONS.PASS, { passed_user_id: userId });
+      await post(ENDPOINTS.INTERACTIONS.PASS, { target_user_id: userId });
+      router.back();
+    } catch {
+      // handle
+    }
+  };
+
+  const handleSuperLike = async () => {
+    try {
+      await post(ENDPOINTS.INTERACTIONS.SUPER_LIKE, { target_user_id: userId });
+      router.back();
+    } catch {
+      // handle
+    }
+  };
+
+  const handleBlock = async () => {
+    try {
+      await post(ENDPOINTS.BLOCKS.BLOCK, { blocked_user_id: userId });
       router.back();
     } catch {
       // handle
@@ -90,7 +108,7 @@ export default function UserProfilePage() {
       <div className="absolute top-4 left-4 z-30 md:relative md:top-0 md:left-0">
         <button
           onClick={() => router.back()}
-          className="p-2 rounded-full glass text-white"
+          className="p-2.5 rounded-full bg-black/40 backdrop-blur-xl text-white hover:bg-black/60 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -116,7 +134,7 @@ export default function UserProfilePage() {
                 <button
                   key={i}
                   onClick={() => setPhotoIndex(i)}
-                  className={`flex-1 h-1 rounded-full ${
+                  className={`flex-1 h-[3px] rounded-full transition-colors ${
                     i === photoIndex ? "bg-white" : "bg-white/30"
                   }`}
                 />
@@ -150,7 +168,7 @@ export default function UserProfilePage() {
         {/* Profile info */}
         <div className="px-6 -mt-16 relative z-10">
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-3xl font-black text-white">
+            <h1 className="text-3xl font-medium text-white tracking-tight">
               {profile.name}, {profile.age}
             </h1>
             {profile.is_verified && (
@@ -159,14 +177,14 @@ export default function UserProfilePage() {
           </div>
 
           {profile.location_city && (
-            <p className="text-text-secondary text-sm flex items-center gap-1.5 mb-4">
+            <p className="text-white/40 text-sm flex items-center gap-1.5 mb-4">
               <MapPin className="w-4 h-4" />
               {profile.location_city}
             </p>
           )}
 
           {profile.sexual_orientation && (
-            <p className="text-text-muted text-sm mb-2">
+            <p className="text-white/25 text-sm mb-2">
               {profile.sexual_orientation}
               {profile.pronouns && ` · ${profile.pronouns}`}
             </p>
@@ -174,10 +192,10 @@ export default function UserProfilePage() {
 
           {profile.bio && (
             <div className="py-4">
-              <h3 className="text-sm font-semibold text-text-secondary mb-2">
+              <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-2.5">
                 About
               </h3>
-              <p className="text-white text-sm leading-relaxed">
+              <p className="text-white/80 text-sm leading-relaxed">
                 {profile.bio}
               </p>
             </div>
@@ -185,12 +203,12 @@ export default function UserProfilePage() {
 
           {profile.tags && profile.tags.length > 0 && (
             <div className="py-4">
-              <h3 className="text-sm font-semibold text-text-secondary mb-3">
+              <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-3">
                 Interests
               </h3>
               <div className="flex flex-wrap gap-2">
-                {profile.tags.map((tag) => (
-                  <Chip key={tag.tag_id} label={tag.name} size="sm" />
+                {profile.tags.map((tag, i) => (
+                  <Chip key={typeof tag === "string" ? i : tag.tag_id} label={typeof tag === "string" ? tag : tag.name} size="sm" />
                 ))}
               </div>
             </div>
@@ -198,19 +216,19 @@ export default function UserProfilePage() {
 
           {profile.prompts && profile.prompts.length > 0 && (
             <div className="py-4">
-              <h3 className="text-sm font-semibold text-text-secondary mb-3">
+              <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-3">
                 Prompts
               </h3>
               <div className="space-y-3">
                 {profile.prompts.map((prompt) => (
                   <div
                     key={prompt.prompt_id}
-                    className="bg-card rounded-xl p-4 border border-border"
+                    className="bg-white/[0.04] rounded-xl p-4 border border-white/[0.06]"
                   >
-                    <p className="text-text-secondary text-xs font-medium mb-1">
+                    <p className="text-white/40 text-xs font-medium mb-1.5">
                       {prompt.question}
                     </p>
-                    <p className="text-white text-sm">{prompt.answer}</p>
+                    <p className="text-white text-sm leading-relaxed">{prompt.answer}</p>
                   </div>
                 ))}
               </div>
@@ -219,25 +237,28 @@ export default function UserProfilePage() {
         </div>
 
         {/* Spacer for bottom actions */}
-        <div className="h-24" />
+        <div className="h-28" />
       </div>
 
       {/* Action bar */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent z-20">
+      <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-background via-background/95 to-transparent z-20">
         <div className="flex items-center justify-center gap-5">
           <button
             onClick={handlePass}
-            className="w-14 h-14 rounded-full border-2 border-pass flex items-center justify-center bg-card hover:bg-pass/10 transition-colors"
+            className="w-14 h-14 rounded-full border border-white/[0.15] flex items-center justify-center bg-white/[0.04] hover:bg-white/[0.08] transition-all"
           >
-            <X className="w-7 h-7 text-pass" />
+            <X className="w-7 h-7 text-white/50" />
           </button>
           <button
             onClick={handleLike}
-            className="w-16 h-16 rounded-full bg-primary flex items-center justify-center hover:bg-primary-dark transition-colors shadow-lg shadow-primary/30"
+            className="w-16 h-16 rounded-full bg-primary flex items-center justify-center hover:bg-primary-dark transition-colors shadow-lg shadow-primary/25"
           >
             <Heart className="w-8 h-8 text-white" />
           </button>
-          <button className="w-14 h-14 rounded-full border-2 border-superlike flex items-center justify-center bg-card hover:bg-superlike/10 transition-colors">
+          <button
+            onClick={handleSuperLike}
+            className="w-14 h-14 rounded-full border border-superlike/30 flex items-center justify-center bg-superlike/5 hover:bg-superlike/15 transition-all"
+          >
             <Star className="w-7 h-7 text-superlike" />
           </button>
         </div>

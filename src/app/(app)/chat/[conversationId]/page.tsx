@@ -133,17 +133,17 @@ export default function ChatPage() {
   const getStatusIcon = (msg: FirebaseMessage) => {
     if (msg.sender_id !== userId) return null;
     if (msg.seen_at) return <CheckCheck className="w-3.5 h-3.5 text-info" />;
-    if (msg.delivered_at) return <CheckCheck className="w-3.5 h-3.5 text-text-muted" />;
-    return <Check className="w-3.5 h-3.5 text-text-muted" />;
+    if (msg.delivered_at) return <CheckCheck className="w-3.5 h-3.5 text-white/30" />;
+    return <Check className="w-3.5 h-3.5 text-white/30" />;
   };
 
   return (
     <div className="h-full flex flex-col">
       {/* Chat header */}
-      <div className="flex items-center gap-3 h-14 px-4 border-b border-border bg-card shrink-0">
+      <div className="flex items-center gap-3 h-14 px-4 border-b border-white/[0.06] bg-background/80 backdrop-blur-xl shrink-0">
         <button
           onClick={() => router.push("/matches")}
-          className="md:hidden p-1.5 rounded-lg hover:bg-card-light text-text-muted"
+          className="md:hidden p-1.5 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -160,7 +160,7 @@ export default function ChatPage() {
               isOnline={otherUser.is_online}
             />
             <div className="text-left min-w-0">
-              <p className="font-semibold text-white text-sm truncate">
+              <p className="font-medium text-white text-sm truncate">
                 {otherUser.name}
               </p>
               {isOtherTyping ? (
@@ -172,13 +172,13 @@ export default function ChatPage() {
           </button>
         )}
 
-        <button className="p-1.5 rounded-lg hover:bg-card-light text-text-muted">
+        <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/30 hover:text-white/60 transition-colors">
           <MoreVertical className="w-5 h-5" />
         </button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-3">
         {messages
           .filter((msg) => {
             if (msg.sender_id === userId && msg.deleted_for_sender) return false;
@@ -198,11 +198,11 @@ export default function ChatPage() {
                     "max-w-[75%] rounded-2xl px-4 py-2.5",
                     isMe
                       ? "bg-primary text-white rounded-br-md"
-                      : "bg-card text-white rounded-bl-md"
+                      : "bg-white/[0.06] text-white rounded-bl-md"
                   )}
                 >
                   {msg.message_type === "opening_move" && (
-                    <p className="text-xs text-white/60 mb-1 italic">
+                    <p className="text-[10px] text-white/50 mb-1 uppercase tracking-wider">
                       Opening Move
                     </p>
                   )}
@@ -228,7 +228,7 @@ export default function ChatPage() {
                       isMe ? "justify-end" : "justify-start"
                     )}
                   >
-                    <span className="text-[10px] opacity-60">
+                    <span className="text-[10px] opacity-50">
                       {formatMessageTime(msg.sent_at)}
                     </span>
                     {getStatusIcon(msg)}
@@ -241,11 +241,11 @@ export default function ChatPage() {
         {/* Typing indicator */}
         {isOtherTyping && (
           <div className="flex justify-start">
-            <div className="bg-card rounded-2xl rounded-bl-md px-4 py-3">
+            <div className="bg-white/[0.06] rounded-2xl rounded-bl-md px-4 py-3">
               <div className="flex gap-1">
-                <div className="w-2 h-2 rounded-full bg-text-muted animate-bounce" />
-                <div className="w-2 h-2 rounded-full bg-text-muted animate-bounce [animation-delay:0.1s]" />
-                <div className="w-2 h-2 rounded-full bg-text-muted animate-bounce [animation-delay:0.2s]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-white/30 animate-bounce" />
+                <div className="w-1.5 h-1.5 rounded-full bg-white/30 animate-bounce [animation-delay:0.1s]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-white/30 animate-bounce [animation-delay:0.2s]" />
               </div>
             </div>
           </div>
@@ -255,9 +255,9 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <div className="px-4 py-3 border-t border-border bg-card shrink-0">
+      <div className="px-4 py-3 border-t border-white/[0.06] bg-background/80 backdrop-blur-xl shrink-0">
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-lg hover:bg-card-light text-text-muted">
+          <button className="p-2 rounded-full hover:bg-white/[0.06] text-white/30 hover:text-white/60 transition-colors">
             <ImageIcon className="w-5 h-5" />
           </button>
 
@@ -266,17 +266,17 @@ export default function ChatPage() {
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
-            className="flex-1 bg-card-light border border-border rounded-full px-4 py-2.5 text-white text-sm placeholder:text-text-muted focus:outline-none focus:border-primary"
+            className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-full px-4 py-2.5 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-primary/50 transition-colors"
           />
 
           <button
             onClick={handleSend}
             disabled={!inputText.trim() || isSending}
             className={cn(
-              "p-2.5 rounded-full transition-colors",
+              "p-2.5 rounded-full transition-all",
               inputText.trim()
                 ? "bg-primary text-white hover:bg-primary-dark"
-                : "bg-card-light text-text-muted"
+                : "bg-white/[0.04] text-white/20"
             )}
           >
             <Send className="w-5 h-5" />

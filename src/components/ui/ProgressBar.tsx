@@ -14,29 +14,20 @@ export default function ProgressBar({
   total,
   className,
 }: ProgressBarProps) {
-  const percentage = (current / total) * 100;
-
   return (
     <div className={cn("w-full", className)}>
       <div className="flex gap-1.5">
         {Array.from({ length: total }).map((_, i) => (
           <div
             key={i}
-            className="flex-1 h-1 rounded-full bg-card-light overflow-hidden"
+            className="flex-1 h-1 rounded-full bg-white/[0.06] overflow-hidden"
           >
             {i < current && (
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
                 className="h-full bg-primary rounded-full"
-              />
-            )}
-            {i === current && (
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${(percentage % (100 / total)) * total}%` }}
-                className="h-full bg-primary/50 rounded-full"
               />
             )}
           </div>

@@ -44,7 +44,7 @@ export default function Dropdown({
   return (
     <div className={cn("w-full", className)} ref={ref}>
       {label && (
-        <label className="block text-sm font-medium text-text-secondary mb-1.5">
+        <label className="block text-[11px] uppercase tracking-[0.15em] text-white/40 mb-2">
           {label}
         </label>
       )}
@@ -52,24 +52,24 @@ export default function Dropdown({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "w-full flex items-center justify-between bg-card border border-border rounded-xl px-4 py-3",
-          "text-left transition-colors duration-200",
-          isOpen && "border-primary ring-1 ring-primary"
+          "w-full flex items-center justify-between bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3.5",
+          "text-left transition-all duration-200",
+          isOpen && "border-primary/50 bg-white/[0.06]"
         )}
       >
-        <span className={selected ? "text-white" : "text-text-muted"}>
+        <span className={selected ? "text-white" : "text-white/20"}>
           {selected?.label || placeholder}
         </span>
         <ChevronDown
           className={cn(
-            "w-4 h-4 text-text-muted transition-transform",
+            "w-4 h-4 text-white/30 transition-transform",
             isOpen && "rotate-180"
           )}
         />
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full bg-card border border-border rounded-xl shadow-2xl overflow-hidden">
+        <div className="absolute z-50 mt-1 w-full bg-[#111113] border border-white/[0.08] rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl">
           {options.map((option) => (
             <button
               key={option.value}
@@ -82,7 +82,7 @@ export default function Dropdown({
                 "w-full px-4 py-2.5 text-left text-sm transition-colors",
                 option.value === value
                   ? "bg-primary/10 text-primary"
-                  : "text-text-secondary hover:bg-card-light hover:text-white"
+                  : "text-white/50 hover:bg-white/[0.06] hover:text-white"
               )}
             >
               {option.label}

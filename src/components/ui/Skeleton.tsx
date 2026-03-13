@@ -18,7 +18,7 @@ export default function Skeleton({
   return (
     <div
       className={cn(
-        "animate-pulse bg-card-light",
+        "animate-pulse bg-white/[0.06]",
         {
           "rounded-md h-4": variant === "text",
           "rounded-full": variant === "circular",

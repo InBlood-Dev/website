@@ -45,7 +45,7 @@ export default function Avatar({
     >
       <div
         className={cn(
-          "w-full h-full rounded-full overflow-hidden bg-card-light",
+          "w-full h-full rounded-full overflow-hidden bg-white/[0.06]",
           borderColor ? `ring-2` : ""
         )}
         style={borderColor ? { boxShadow: `0 0 0 2px ${borderColor}` } : undefined}
@@ -59,7 +59,7 @@ export default function Avatar({
             sizes="96px"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-text-muted text-lg font-bold">
+          <div className="w-full h-full flex items-center justify-center text-white/30 text-lg font-bold">
             {alt.charAt(0).toUpperCase()}
           </div>
         )}
