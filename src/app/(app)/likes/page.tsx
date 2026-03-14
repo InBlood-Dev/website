@@ -37,24 +37,22 @@ export default function LikesPage() {
     return (
       <div className="h-full flex flex-col">
         <Header title="Likes" />
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="text-center max-w-xs">
-            <div className="w-16 h-16 rounded-full bg-white/[0.04] flex items-center justify-center mx-auto mb-6">
-              <Lock className="w-7 h-7 text-white/15" />
-            </div>
-            <h2 className="text-xl font-medium text-white mb-2 tracking-tight">
-              See Who Likes You
-            </h2>
-            <p className="text-white/30 mb-8 text-sm leading-relaxed">
-              Upgrade to Premium to see everyone who has liked your profile
-            </p>
-            <button
-              onClick={() => router.push("/premium")}
-              className="px-8 py-3.5 bg-primary text-white text-sm uppercase tracking-[0.15em] hover:bg-primary-dark transition-colors rounded-full"
-            >
-              Upgrade to Premium
-            </button>
+        <div className="flex-1 flex flex-col items-center justify-center p-6">
+          <div className="w-16 h-16 rounded-full bg-white/[0.04] flex items-center justify-center mb-6">
+            <Lock className="w-7 h-7 text-white/15" />
           </div>
+          <h2 className="text-xl font-medium text-white mb-2 tracking-tight">
+            See Who Likes You
+          </h2>
+          <p className="text-white/30 mb-8 text-sm leading-relaxed text-center max-w-xs">
+            Upgrade to Premium to see everyone who has liked your profile
+          </p>
+          <button
+            onClick={() => router.push("/premium")}
+            className="px-8 py-3 bg-gradient-to-r from-primary to-primary-light text-white text-sm font-medium rounded-full shadow-lg shadow-primary/25 hover:brightness-110 transition-all"
+          >
+            Upgrade to Premium
+          </button>
         </div>
       </div>
     );
@@ -64,7 +62,7 @@ export default function LikesPage() {
     <div className="h-full flex flex-col">
       <Header title={`Likes${data ? ` (${data.count})` : ""}`} />
 
-      <div className="flex-1 overflow-y-auto p-4 md:p-6">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col">
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -76,7 +74,7 @@ export default function LikesPage() {
             ))}
           </div>
         ) : data?.likes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24">
+          <div className="flex-1 flex flex-col items-center justify-center">
             <div className="w-14 h-14 rounded-full bg-white/[0.04] flex items-center justify-center mb-5">
               <Heart className="w-6 h-6 text-white/20" />
             </div>

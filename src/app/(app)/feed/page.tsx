@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFeedStore } from "@/stores/feed.store";
 import { useUIStore } from "@/stores/ui.store";
+import { ApiError } from "@/lib/api/client";
 import SwipeCard from "@/components/feed/SwipeCard";
 import SwipeActions from "@/components/feed/SwipeActions";
 import MatchModal from "@/components/feed/MatchModal";
@@ -26,6 +27,7 @@ export default function FeedPage() {
     superLike,
     pass,
     nextCard,
+    undoCard,
     fetchDailyLimits,
     clearMatchData,
   } = useFeedStore();
@@ -37,11 +39,15 @@ export default function FeedPage() {
 
   const currentUser = users?.[currentIndex];
   const nextUser = users?.[currentIndex + 1];
+  const [triggerDirection, setTriggerDirection] = useState<"left" | "right" | "up" | null>(null);
 
-  const handleSwipe = useCallback(
+  // Called after fly-out animation completes
+  const handleSwipeComplete = useCallback(
     async (direction: "left" | "right" | "up") => {
       if (!currentUser) return;
+      setTriggerDirection(null);
 
+      const addToast = useUIStore.getState().addToast;
       try {
         if (direction === "right") {
           await like(currentUser.user_id);
@@ -51,24 +57,38 @@ export default function FeedPage() {
           await pass(currentUser.user_id);
         }
         nextCard();
-      } catch {
-        // handled by store
+      } catch (err) {
+        const detail = err instanceof ApiError ? err.errors?.[0]?.message || err.message : err instanceof Error ? err.message : "Action failed";
+        if (detail.toLowerCase().includes("already")) {
+          nextCard();
+        } else {
+          addToast({ type: "error", message: detail });
+        }
       }
     },
     [currentUser, like, superLike, pass, nextCard]
+  );
+
+  // Trigger swipe from buttons or keyboard (animates first, then completes)
+  const triggerSwipe = useCallback(
+    (direction: "left" | "right" | "up") => {
+      if (!currentUser || triggerDirection) return;
+      setTriggerDirection(direction);
+    },
+    [currentUser, triggerDirection]
   );
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!currentUser) return;
-      if (e.key === "ArrowLeft") handleSwipe("left");
-      if (e.key === "ArrowRight") handleSwipe("right");
-      if (e.key === "ArrowUp") handleSwipe("up");
+      if (e.key === "ArrowLeft") triggerSwipe("left");
+      if (e.key === "ArrowRight") triggerSwipe("right");
+      if (e.key === "ArrowUp") triggerSwipe("up");
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentUser, handleSwipe]);
+  }, [currentUser, triggerSwipe]);
 
   // Load more when running low
   useEffect(() => {
@@ -82,7 +102,7 @@ export default function FeedPage() {
       {/* Ambient background glow */}
       <div className="fixed top-[20%] left-[50%] -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-primary/[0.025] blur-[120px] pointer-events-none" />
 
-      <Header title="Discover">
+      <Header title="Swipe">
         {dailyLimits && dailyLimits.swipes.remaining !== null && (
           <div className="flex items-center gap-2.5">
             <div className="h-1.5 w-20 rounded-full bg-white/[0.06] overflow-hidden">
@@ -138,16 +158,19 @@ export default function FeedPage() {
               <SwipeCard
                 key={currentUser.user_id}
                 user={currentUser}
-                onSwipe={handleSwipe}
+                onSwipe={handleSwipeComplete}
                 isTop
+                triggerDirection={triggerDirection}
               />
             </div>
 
             {/* Action buttons */}
             <SwipeActions
-              onPass={() => handleSwipe("left")}
-              onLike={() => handleSwipe("right")}
-              onSuperLike={() => handleSwipe("up")}
+              onPass={() => triggerSwipe("left")}
+              onLike={() => triggerSwipe("right")}
+              onSuperLike={() => triggerSwipe("up")}
+              onUndo={undoCard}
+              canUndo={currentIndex > 0}
             />
 
             {/* Keyboard hint */}

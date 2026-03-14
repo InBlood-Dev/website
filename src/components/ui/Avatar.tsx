@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils/cn";
-import Image from "next/image";
 import { BadgeCheck } from "lucide-react";
 
 interface AvatarProps {
@@ -41,22 +40,18 @@ export default function Avatar({
 }: AvatarProps) {
   return (
     <div
-      className={cn("relative inline-flex shrink-0", sizeMap[size], className)}
+      className={cn("relative inline-flex shrink-0", borderColor ? "p-[3px]" : "", className)}
     >
       <div
-        className={cn(
-          "w-full h-full rounded-full overflow-hidden bg-white/[0.06]",
-          borderColor ? `ring-2` : ""
-        )}
-        style={borderColor ? { boxShadow: `0 0 0 2px ${borderColor}` } : undefined}
+        className={cn("rounded-full overflow-hidden bg-white/[0.06]", sizeMap[size])}
+        style={borderColor ? { outline: `2px solid ${borderColor}`, outlineOffset: "1px" } : undefined}
       >
         {src ? (
-          <Image
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
             src={src}
             alt={alt}
-            fill
-            className="object-cover"
-            sizes="96px"
+            className="w-full h-full object-cover object-top block"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-white/30 text-lg font-bold">

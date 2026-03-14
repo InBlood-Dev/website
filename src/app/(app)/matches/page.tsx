@@ -2,13 +2,12 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useMatchesStore } from "@/stores/matches.store";
-import Header from "@/components/layout/Header";
-import Avatar from "@/components/ui/Avatar";
 import Skeleton from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
 import { formatMessageTime } from "@/lib/utils/formatters";
-import { Pin, MessageCircle } from "lucide-react";
+import { Pin, MessageCircle, Heart } from "lucide-react";
 
 export default function MatchesPage() {
   const router = useRouter();
@@ -34,165 +33,266 @@ export default function MatchesPage() {
       return bTime - aTime;
     });
 
+  const likesCount = 0; // TODO: fetch from pending likes endpoint
+
   return (
     <div className="h-full flex flex-col">
-      <Header title="Matches" />
+      {/* Red gradient header section (matching mobile) */}
+      <div className="bg-gradient-to-b from-primary to-primary-dark">
+        {/* Header title */}
+        <div className="flex items-center justify-center px-4 py-3">
+          <h1 className="text-[22px] font-bold text-white">Messages</h1>
+        </div>
 
-      <div className="flex-1 overflow-y-auto">
-        {isLoading ? (
-          <div className="p-5 space-y-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3 p-2">
-                <Skeleton variant="circular" className="w-14 h-14" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="w-32 h-4" />
-                  <Skeleton className="w-48 h-3" />
+        {/* New Matches horizontal carousel */}
+        <div className="px-5 pb-5">
+          <p className="text-white/90 text-sm font-semibold mb-3">New Matches</p>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+            {/* Likes Card */}
+            <button
+              onClick={() => router.push("/likes")}
+              className="shrink-0"
+            >
+              <div className="w-[100px] h-[130px] rounded-xl overflow-hidden bg-gradient-to-br from-[#FF6B6B] to-primary flex flex-col items-center justify-center">
+                <div className="w-[50px] h-[50px] rounded-full bg-white/20 flex items-center justify-center mb-1">
+                  <Heart className="w-8 h-8 text-white fill-white" />
                 </div>
+                <span className="text-2xl font-extrabold text-white">{likesCount}</span>
+                <span className="text-sm font-semibold text-white/90">Likes</span>
               </div>
+            </button>
+
+            {/* New match profile cards */}
+            {newMatches.map((match) => (
+              <button
+                key={match.match_id}
+                onClick={() => router.push(`/chat/${match.conversation_id}`)}
+                className="shrink-0"
+              >
+                <div className="w-[100px] h-[130px] rounded-xl overflow-hidden bg-card relative">
+                  {match.user.primary_photo ? (
+                    <Image
+                      src={match.user.primary_photo}
+                      alt={match.user.name}
+                      fill
+                      className="object-cover"
+                      sizes="100px"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-white/[0.06]">
+                      <span className="text-4xl text-white/30">{match.user.name.charAt(0)}</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent py-2 px-1">
+                    <p className="text-sm font-semibold text-white text-center truncate">
+                      {match.user.name}
+                    </p>
+                  </div>
+                </div>
+              </button>
             ))}
           </div>
-        ) : matches.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 px-6">
-            <div className="w-14 h-14 rounded-full bg-white/[0.04] flex items-center justify-center mb-5">
-              <MessageCircle className="w-6 h-6 text-white/20" />
-            </div>
-            <h2 className="text-lg font-medium text-white mb-2 tracking-tight">
-              No matches yet
-            </h2>
-            <p className="text-white/30 text-center text-sm max-w-xs leading-relaxed">
-              Keep swiping to find your match
-            </p>
-          </div>
-        ) : (
-          <>
-            {/* New matches (horizontal scroll) */}
-            {newMatches.length > 0 && (
-              <div className="px-5 pt-5 pb-2">
-                <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-4">
-                  New Matches
-                </h3>
-                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
-                  {newMatches.map((match) => (
-                    <button
-                      key={match.match_id}
-                      onClick={() =>
-                        router.push(`/chat/${match.conversation_id}`)
-                      }
-                      className="flex flex-col items-center gap-2 shrink-0 group"
-                    >
-                      <div className="relative">
-                        <Avatar
-                          src={match.user.primary_photo}
-                          alt={match.user.name}
-                          size="lg"
-                          isOnline={match.user.is_online}
-                          isVerified={match.user.is_verified}
-                          borderColor="#E53935"
-                        />
-                      </div>
-                      <span className="text-xs font-medium text-white/70 group-hover:text-white transition-colors max-w-[64px] truncate">
-                        {match.user.name}
-                      </span>
-                    </button>
-                  ))}
+        </div>
+      </div>
+
+      {/* Dark chat list section (bottom sheet style) */}
+      <div className="flex-1 bg-background -mt-5 rounded-t-3xl overflow-hidden flex flex-col relative z-10">
+        {/* Handle indicator */}
+        <div className="flex items-center justify-center py-2.5">
+          <div className="w-10 h-1 rounded-full bg-white/[0.1]" />
+        </div>
+
+        <div className="flex-1 overflow-y-auto pb-24 md:pb-8">
+          {isLoading ? (
+            <div className="px-4 space-y-4 pt-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3 p-2">
+                  <Skeleton variant="circular" className="w-14 h-14" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="w-32 h-4" />
+                    <Skeleton className="w-48 h-3" />
+                  </div>
                 </div>
-                <div className="h-px bg-white/[0.06] mt-2" />
-              </div>
-            )}
-
-            {/* Pinned conversations */}
-            {pinnedMatches.length > 0 && (
-              <div className="px-5 pt-4 pb-2">
-                <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-3 flex items-center gap-1.5">
-                  <Pin className="w-3.5 h-3.5" />
-                  Pinned
-                </h3>
-                {pinnedMatches.map((match) => (
-                  <ConversationItem
-                    key={match.match_id}
-                    match={match}
-                    onClick={() =>
-                      router.push(`/chat/${match.conversation_id}`)
-                    }
-                  />
-                ))}
-                <div className="h-px bg-white/[0.06] mt-2" />
-              </div>
-            )}
-
-            {/* Conversations */}
-            <div className="px-5 pt-4 pb-3">
-              {(pinnedMatches.length > 0 || newMatches.length > 0) && (
-                <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-3">
-                  Messages
-                </h3>
-              )}
-              {conversations.map((match) => (
-                <ConversationItem
-                  key={match.match_id}
-                  match={match}
-                  onClick={() =>
-                    router.push(`/chat/${match.conversation_id}`)
-                  }
-                />
               ))}
             </div>
-          </>
-        )}
+          ) : matches.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center px-6 pt-20">
+              <div className="w-20 h-20 rounded-full bg-card flex items-center justify-center mb-6">
+                <MessageCircle className="w-12 h-12 text-white/15" />
+              </div>
+              <h2 className="text-lg font-medium text-white mb-2 tracking-tight">
+                No messages yet
+              </h2>
+              <p className="text-white/30 text-center text-sm max-w-xs leading-relaxed">
+                When you match with someone, start a conversation here!
+              </p>
+            </div>
+          ) : (
+            <div className="px-4">
+              {/* Pinned conversations */}
+              {pinnedMatches.length > 0 && (
+                <div className="pt-2 pb-1">
+                  <SectionHeader title="Pinned" count={pinnedMatches.length} />
+                  {pinnedMatches.map((match) => (
+                    <ChatItem
+                      key={match.match_id}
+                      match={match}
+                      onClick={() => router.push(`/chat/${match.conversation_id}`)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* New Matches in list */}
+              {newMatches.length > 0 && (
+                <div className="pt-2 pb-1">
+                  <SectionHeader title="New Matches" count={newMatches.length} />
+                  {newMatches.map((match) => (
+                    <ChatItem
+                      key={match.match_id}
+                      match={match}
+                      showNewBadge
+                      onClick={() => router.push(`/chat/${match.conversation_id}`)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Regular conversations */}
+              {conversations.length > 0 && (
+                <div className="pt-2 pb-1">
+                  {(pinnedMatches.length > 0 || newMatches.length > 0) && (
+                    <SectionHeader title="Messages" />
+                  )}
+                  {conversations.map((match) => (
+                    <ChatItem
+                      key={match.match_id}
+                      match={match}
+                      onClick={() => router.push(`/chat/${match.conversation_id}`)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-function ConversationItem({
+// ─── Section Header ──────────────────────────────────────────────
+
+function SectionHeader({ title, count }: { title: string; count?: number }) {
+  return (
+    <div className="py-2 pt-4">
+      <p className="text-sm font-semibold text-white uppercase tracking-wide">
+        {title}
+        {count !== undefined && count > 0 && (
+          <span className="text-white/30 font-medium"> ({count})</span>
+        )}
+      </p>
+    </div>
+  );
+}
+
+// ─── Chat Item (matching mobile ChatItem) ────────────────────────
+
+function ChatItem({
   match,
   onClick,
+  showNewBadge = false,
 }: {
   match: ReturnType<typeof useMatchesStore.getState>["matches"][number];
   onClick: () => void;
+  showNewBadge?: boolean;
 }) {
+  const hasUnread = match.unread_count > 0;
+
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/[0.04] transition-all text-left"
+      className={cn(
+        "flex items-center gap-3 w-full py-3 px-2 rounded-xl transition-all text-left border-b border-white/[0.04]",
+        hasUnread
+          ? "bg-primary/[0.06] border-l-[3px] border-l-primary"
+          : "hover:bg-white/[0.04]"
+      )}
     >
-      <Avatar
-        src={match.user.primary_photo}
-        alt={match.user.name}
-        size="md"
-        isOnline={match.user.is_online}
-      />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-white text-sm truncate">
-            {match.user.name}
-          </span>
-          {match.last_message?.sent_at && (
-            <span className="text-xs text-white/25 shrink-0 ml-2">
-              {formatMessageTime(new Date(match.last_message.sent_at))}
-            </span>
+      {/* Avatar */}
+      <div className="relative shrink-0">
+        <div
+          className={cn(
+            "w-14 h-14 rounded-full overflow-hidden",
+            hasUnread ? "ring-2 ring-primary" : ""
+          )}
+        >
+          {match.user.primary_photo ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={match.user.primary_photo}
+              alt={match.user.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-card text-white/30 text-xl font-bold">
+              {match.user.name.charAt(0)}
+            </div>
           )}
         </div>
-        {match.last_message && (
-          <p
-            className={cn(
-              "text-[13px] truncate mt-0.5",
-              match.unread_count > 0
-                ? "text-white font-medium"
-                : "text-white/35"
-            )}
-          >
-            {match.last_message.is_from_me && "You: "}
-            {match.last_message.content}
-          </p>
+        {showNewBadge && (
+          <div className="absolute -top-1 -right-1 bg-primary px-1.5 py-0.5 rounded-md border-2 border-background">
+            <span className="text-[9px] font-extrabold text-white tracking-wide">NEW</span>
+          </div>
         )}
       </div>
 
-      {match.unread_count > 0 && (
-        <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-          {match.unread_count > 9 ? "9+" : match.unread_count}
-        </span>
-      )}
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1 mb-1">
+          <span
+            className={cn(
+              "text-base truncate flex-1",
+              hasUnread ? "font-bold text-white" : "font-medium text-white"
+            )}
+          >
+            {match.user.name}
+          </span>
+          {match.is_pinned && (
+            <Pin className="w-3.5 h-3.5 text-primary rotate-45 shrink-0" />
+          )}
+        </div>
+        <p
+          className={cn(
+            "text-sm truncate",
+            hasUnread ? "text-white font-medium" : "text-white/40"
+          )}
+        >
+          {match.last_message
+            ? `${match.last_message.is_from_me ? "You: " : ""}${match.last_message.content}`
+            : "Say hello! 👋"}
+        </p>
+      </div>
+
+      {/* Meta */}
+      <div className="flex flex-col items-end shrink-0 gap-1.5">
+        {match.last_message?.sent_at && (
+          <span
+            className={cn(
+              "text-xs",
+              hasUnread ? "text-primary font-semibold" : "text-white/25"
+            )}
+          >
+            {formatMessageTime(new Date(match.last_message.sent_at))}
+          </span>
+        )}
+        {hasUnread && (
+          <span className="min-w-[22px] h-[22px] rounded-full bg-primary text-white text-[11px] font-extrabold flex items-center justify-center px-1.5">
+            {match.unread_count > 9 ? "9+" : match.unread_count}
+          </span>
+        )}
+      </div>
     </button>
   );
 }

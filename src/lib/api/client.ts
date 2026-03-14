@@ -2,6 +2,7 @@ import { API_BASE_URL, API_TIMEOUT, HTTP_STATUS } from "./endpoints";
 
 let authToken: string | null = null;
 let onUnauthorized: (() => void) | null = null;
+let onTokenRefreshed: ((token: string) => void) | null = null;
 let isLoggingOut = false;
 
 export const setAuthToken = (token: string | null): void => {
@@ -13,6 +14,10 @@ export const getAuthToken = (): string | null => authToken;
 
 export const setOnUnauthorized = (callback: () => void): void => {
   onUnauthorized = callback;
+};
+
+export const setOnTokenRefreshed = (callback: (token: string) => void): void => {
+  onTokenRefreshed = callback;
 };
 
 export interface ApiResponse<T> {
@@ -52,45 +57,57 @@ const buildMultipartHeaders = (): HeadersInit => {
   return headers;
 };
 
-async function refreshTokens(): Promise<{
+type RefreshResult = {
   status: "success" | "auth_failed" | "transient_error";
   token?: string;
-}> {
-  try {
-    const refreshToken = localStorage.getItem("inblood_refresh_token");
-    if (!refreshToken) return { status: "auth_failed" };
+};
 
-    const response = await fetch(
-      `${API_BASE_URL}/auth/refresh-token`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh_token: refreshToken }),
-      }
-    );
+let refreshPromise: Promise<RefreshResult> | null = null;
 
-    if (!response.ok) {
-      if (response.status === 401 || response.status === 403) {
-        return { status: "auth_failed" };
+async function refreshTokens(): Promise<RefreshResult> {
+  // If a refresh is already in flight, wait for it instead of firing another
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async (): Promise<RefreshResult> => {
+    try {
+      const refreshToken = localStorage.getItem("inblood_refresh_token");
+      if (!refreshToken) return { status: "auth_failed" };
+
+      const response = await fetch(
+        `${API_BASE_URL}/auth/refresh-token`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh_token: refreshToken }),
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          return { status: "auth_failed" };
+        }
+        return { status: "transient_error" };
       }
+
+      const data = await response.json();
+      const newAccessToken = data.data?.accessToken;
+      const newRefreshToken = data.data?.refreshToken;
+
+      if (!newAccessToken) return { status: "transient_error" };
+
+      if (newRefreshToken) {
+        localStorage.setItem("inblood_refresh_token", newRefreshToken);
+      }
+
+      return { status: "success", token: newAccessToken };
+    } catch {
       return { status: "transient_error" };
+    } finally {
+      refreshPromise = null;
     }
+  })();
 
-    const data = await response.json();
-    const newAccessToken = data.data?.accessToken;
-    const newRefreshToken = data.data?.refreshToken;
-
-    if (!newAccessToken) return { status: "transient_error" };
-
-    localStorage.setItem("inblood_access_token", newAccessToken);
-    if (newRefreshToken) {
-      localStorage.setItem("inblood_refresh_token", newRefreshToken);
-    }
-
-    return { status: "success", token: newAccessToken };
-  } catch {
-    return { status: "transient_error" };
-  }
+  return refreshPromise;
 }
 
 const request = async <T>(
@@ -120,6 +137,7 @@ const request = async <T>(
 
         if (result.status === "success" && result.token) {
           authToken = result.token;
+          onTokenRefreshed?.(result.token);
 
           const retryHeaders: Record<string, string> = {
             "Content-Type": "application/json",
@@ -257,5 +275,5 @@ export const putFormData = async <T>(
   });
 };
 
-const api = { get, post, put, del, postFormData, putFormData, setAuthToken, setOnUnauthorized };
+const api = { get, post, put, del, postFormData, putFormData, setAuthToken, setOnUnauthorized, setOnTokenRefreshed };
 export default api;

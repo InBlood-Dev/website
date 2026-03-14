@@ -8,27 +8,22 @@ import { useUIStore } from "@/stores/ui.store";
 import { useAuthStore } from "@/stores/auth.store";
 import Avatar from "@/components/ui/Avatar";
 import {
+  Home,
   Heart,
   Compass,
   MessageCircle,
   User,
-  Settings,
-  Crown,
-  Search,
   ChevronLeft,
   ChevronRight,
   LogOut,
 } from "lucide-react";
 
 const navItems = [
-  { href: "/feed", label: "Feed", icon: null },
+  { href: "/home", label: "Home", icon: Home },
   { href: "/discover", label: "Discover", icon: Compass },
-  { href: "/matches", label: "Matches", icon: MessageCircle },
-  { href: "/likes", label: "Likes", icon: Heart },
-  { href: "/search", label: "Search", icon: Search },
+  { href: "/feed", label: "Swipe", icon: Heart },
+  { href: "/matches", label: "Messages", icon: MessageCircle },
   { href: "/profile", label: "Profile", icon: User },
-  { href: "/premium", label: "Premium", icon: Crown },
-  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -82,14 +77,7 @@ export default function Sidebar() {
               {isActive && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-gradient-to-b from-primary to-primary-light" />
               )}
-              {Icon ? (
-                <Icon className={cn("w-[18px] h-[18px] shrink-0 transition-colors", isActive ? "text-primary" : "group-hover:text-white/50")} />
-              ) : (
-                <div className="relative w-[18px] h-[18px] shrink-0">
-                  {isActive && <div className="absolute inset-0 rounded-sm bg-primary/30 blur-[4px]" />}
-                  <Image src="/logo.png" alt="InBlood" width={18} height={18} className="relative rounded-sm" />
-                </div>
-              )}
+              <Icon className={cn("w-[18px] h-[18px] shrink-0 transition-colors", isActive ? "text-primary" : "group-hover:text-white/50")} />
               {!collapsed && (
                 <span className="text-[13px] font-medium">{item.label}</span>
               )}

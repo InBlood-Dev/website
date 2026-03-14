@@ -59,7 +59,7 @@ export default function SearchPage() {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5">
+      <div className="flex-1 overflow-y-auto px-5 flex flex-col">
         {isSearching ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -73,7 +73,7 @@ export default function SearchPage() {
             ))}
           </div>
         ) : !hasSearched && !query ? (
-          <div className="flex flex-col items-center justify-center py-20">
+          <div className="flex-1 flex flex-col items-center justify-center">
             <div className="w-14 h-14 rounded-full bg-white/[0.04] flex items-center justify-center mb-5">
               <SearchIcon className="w-6 h-6 text-white/15" />
             </div>
@@ -82,7 +82,7 @@ export default function SearchPage() {
             </p>
           </div>
         ) : hasSearched && results.length === 0 ? (
-          <div className="text-center py-16">
+          <div className="flex-1 flex items-center justify-center">
             <p className="text-white/25 text-sm">
               No results for &quot;{query}&quot;
             </p>

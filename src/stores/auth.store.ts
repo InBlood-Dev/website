@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { setAuthToken, setOnUnauthorized } from "@/lib/api/client";
+import { setAuthToken, setOnUnauthorized, setOnTokenRefreshed } from "@/lib/api/client";
 import { initializeFirebaseAuth, clearFirebaseAuth } from "@/lib/firebase/auth";
 import { API_BASE_URL } from "@/lib/api/endpoints";
 
@@ -41,6 +41,9 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       _initUnauthorizedHandler: () => {
         setOnUnauthorized(() => {
           get().logout();
+        });
+        setOnTokenRefreshed((newToken) => {
+          set({ accessToken: newToken });
         });
       },
 
@@ -154,6 +157,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         set({
           isAuthenticated: false,
           isLoading: false,
+          hasCompletedOnboarding: false,
+          hasCompletedProfileSetup: false,
           userId: null,
           accessToken: null,
           email: null,

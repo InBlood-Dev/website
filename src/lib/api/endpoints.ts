@@ -9,6 +9,7 @@ export const ENDPOINTS = {
     GOOGLE_MOBILE: "/auth/google/mobile",
     REFRESH_TOKEN: "/auth/refresh-token",
     FIREBASE_TOKEN: "/auth/firebase-token",
+    LOGOUT: "/auth/logout",
   },
   USERS: {
     PROFILE: "/users/profile",
@@ -22,6 +23,8 @@ export const ENDPOINTS = {
     TAGS: "/users/tags",
     REMOVE_TAG: (tagId: string) => `/users/tags/${tagId}`,
     PREFERENCES: "/users/preferences",
+    RELATIONSHIP_TYPES: "/users/relationship-types",
+    SETTINGS: "/users/settings",
   },
   STORIES: {
     FEED: "/stories/feed",
@@ -77,9 +80,11 @@ export const ENDPOINTS = {
     BLOCK: "/blocks",
     UNBLOCK: (blockId: string) => `/blocks/${blockId}`,
   },
+  REPORTS: "/reports",
   NOTIFICATIONS: {
     REGISTER_TOKEN: "/notifications/register-token",
     UNREGISTER_TOKEN: "/notifications/unregister-token",
+    MESSAGE_SENT: "/notifications/message-sent",
   },
   CONVERSATIONS: {
     LIST: "/conversations",

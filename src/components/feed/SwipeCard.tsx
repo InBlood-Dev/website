@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { motion, useMotionValue, useTransform, PanInfo } from "framer-motion";
+import { useState, useCallback, useEffect } from "react";
+import { motion, useMotionValue, useTransform, animate, PanInfo } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import Chip from "@/components/ui/Chip";
@@ -17,10 +17,12 @@ interface SwipeCardProps {
   user: RecommendedUser;
   onSwipe: (direction: "left" | "right" | "up") => void;
   isTop?: boolean;
+  triggerDirection?: "left" | "right" | "up" | null;
 }
 
-export default function SwipeCard({ user, onSwipe, isTop = false }: SwipeCardProps) {
+export default function SwipeCard({ user, onSwipe, isTop = false, triggerDirection = null }: SwipeCardProps) {
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [exiting, setExiting] = useState(false);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotate = useTransform(x, [-300, 0, 300], [-15, 0, 15]);
@@ -30,21 +32,47 @@ export default function SwipeCard({ user, onSwipe, isTop = false }: SwipeCardPro
 
   const photos: string[] = (user.photos && user.photos.length > 0) ? user.photos : user.primary_photo ? [user.primary_photo] : [];
 
+  const flyOut = useCallback(
+    (direction: "left" | "right" | "up") => {
+      if (exiting) return;
+      setExiting(true);
+
+      const flyDistance = typeof window !== "undefined" ? window.innerWidth * 1.5 : 800;
+      const targetX = direction === "right" ? flyDistance : direction === "left" ? -flyDistance : 0;
+      const targetY = direction === "up" ? -flyDistance : 0;
+
+      animate(x, targetX, { duration: 0.4, ease: [0.32, 0, 0.67, 0] });
+      animate(y, targetY, {
+        duration: 0.4,
+        ease: [0.32, 0, 0.67, 0],
+        onComplete: () => onSwipe(direction),
+      });
+    },
+    [exiting, x, y, onSwipe]
+  );
+
   const handleDragEnd = useCallback(
     (_: unknown, info: PanInfo) => {
       const xThreshold = 120;
       const yThreshold = -100;
 
       if (info.offset.y < yThreshold && Math.abs(info.offset.x) < 80) {
-        onSwipe("up");
+        flyOut("up");
       } else if (info.offset.x > xThreshold) {
-        onSwipe("right");
+        flyOut("right");
       } else if (info.offset.x < -xThreshold) {
-        onSwipe("left");
+        flyOut("left");
       }
     },
-    [onSwipe]
+    [flyOut]
   );
+
+  // Handle programmatic swipe from buttons/keyboard
+  useEffect(() => {
+    if (triggerDirection && isTop && !exiting) {
+      flyOut(triggerDirection);
+    }
+  }, [triggerDirection, isTop, exiting, flyOut]);
 
   const nextPhoto = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -58,7 +86,7 @@ export default function SwipeCard({ user, onSwipe, isTop = false }: SwipeCardPro
 
   return (
     <motion.div
-      drag={isTop}
+      drag={isTop && !exiting}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.9}
       onDragEnd={handleDragEnd}

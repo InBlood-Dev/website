@@ -29,6 +29,8 @@ export interface FirebaseMessage {
   deleted_for_receiver?: boolean;
   deleted_at?: number;
   status?: "sending" | "sent" | "delivered" | "seen" | "failed";
+  opening_move_question?: string;
+  opening_move_answer?: string;
 }
 
 export interface FirebaseLastMessage {

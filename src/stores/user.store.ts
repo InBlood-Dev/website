@@ -82,7 +82,7 @@ export const useUserStore = create<UserState & UserActions>()((set) => ({
 
   addTag: async (tagId) => {
     await import("@/lib/api/client").then((m) =>
-      m.post(ENDPOINTS.USERS.TAGS, { tag_id: tagId })
+      m.post(ENDPOINTS.USERS.TAGS, { tag_ids: [tagId] })
     );
   },
 

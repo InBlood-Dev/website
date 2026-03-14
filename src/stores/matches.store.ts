@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { get as apiGet, put, del } from "@/lib/api/client";
+import { get as apiGet, post, del } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 import type { ApiMatch, MatchesResponse } from "@/lib/api/types";
 
@@ -57,7 +57,7 @@ export const useMatchesStore = create<MatchesState & MatchesActions>()(
     },
 
     pinMatch: async (matchId) => {
-      await put(ENDPOINTS.INTERACTIONS.PIN_MATCH(matchId));
+      await post(ENDPOINTS.INTERACTIONS.PIN_MATCH(matchId));
       set((state) => ({
         matches: state.matches.map((m) =>
           m.match_id === matchId ? { ...m, is_pinned: true } : m
@@ -66,7 +66,7 @@ export const useMatchesStore = create<MatchesState & MatchesActions>()(
     },
 
     unpinMatch: async (matchId) => {
-      await put(ENDPOINTS.INTERACTIONS.UNPIN_MATCH(matchId));
+      await del(ENDPOINTS.INTERACTIONS.UNPIN_MATCH(matchId));
       set((state) => ({
         matches: state.matches.map((m) =>
           m.match_id === matchId ? { ...m, is_pinned: false } : m

@@ -49,14 +49,15 @@ const orientationOptions = [
   "Asexual",
   "Queer",
   "Questioning",
-  "Prefer not to say",
+  "Other",
 ];
 const relationshipOptions = [
-  { type: "Long-term", color: "#E53935", emoji: "💘" },
-  { type: "Short-term", color: "#FF6F61", emoji: "🔥" },
-  { type: "Casual", color: "#FFC107", emoji: "✨" },
-  { type: "Friendship", color: "#4CAF50", emoji: "🤝" },
-  { type: "Not sure yet", color: "#2196F3", emoji: "🤷" },
+  { type: "Serious", color: "#9370DB", emoji: "💘" },
+  { type: "Dating", color: "#FF69B4", emoji: "🔥" },
+  { type: "Casual", color: "#FF6347", emoji: "✨" },
+  { type: "Friendship", color: "#FFD700", emoji: "🤝" },
+  { type: "Open", color: "#32CD32", emoji: "🌈" },
+  { type: "Flexible", color: "#32CD32", emoji: "🤷" },
 ];
 const interestedInOptions = ["Man", "Woman", "Non-Binary", "Everyone"];
 
@@ -130,6 +131,7 @@ export default function SetupPage() {
   const handleFinish = async () => {
     setIsSubmitting(true);
     try {
+      // Update basic profile
       await put(ENDPOINTS.USERS.PROFILE, {
         name: name.trim(),
         age: parseInt(age),
@@ -137,12 +139,14 @@ export default function SetupPage() {
         bio: bio.trim(),
         sexual_orientation: orientation || undefined,
         pronouns: pronouns || undefined,
-        relationship_types: relationshipTypes.map((type) => ({
-          type,
-          border_color:
-            relationshipOptions.find((r) => r.type === type)?.color || "#E53935",
-        })),
       });
+
+      // Update relationship types via separate endpoint
+      if (relationshipTypes.length > 0) {
+        await import("@/lib/api/client").then((m) =>
+          m.post(ENDPOINTS.USERS.RELATIONSHIP_TYPES, { types: relationshipTypes })
+        );
+      }
 
       for (const photo of photos) {
         const formData = new FormData();
@@ -157,10 +161,10 @@ export default function SetupPage() {
         interested_in: interestedIn.map((i) => i.toLowerCase()),
       });
 
-      for (const tagId of selectedTags) {
+      if (selectedTags.length > 0) {
         try {
           await import("@/lib/api/client").then((m) =>
-            m.post(ENDPOINTS.USERS.TAGS, { tag_id: tagId })
+            m.post(ENDPOINTS.USERS.TAGS, { tag_ids: selectedTags })
           );
         } catch {}
       }
@@ -355,7 +359,7 @@ export default function SetupPage() {
                       whileTap={{ scale: 0.98 }}
                       onClick={() =>
                         setRelationshipTypes((prev) =>
-                          prev.includes(opt.type) ? prev.filter((t) => t !== opt.type) : [...prev, opt.type]
+                          prev.includes(opt.type) ? prev.filter((t) => t !== opt.type) : prev.length < 3 ? [...prev, opt.type] : prev
                         )
                       }
                       className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center gap-4 text-[15px] ${
@@ -476,7 +480,7 @@ export default function SetupPage() {
                   </div>
                   <Slider label="Minimum Age" min={18} max={100} value={ageMin} onChange={setAgeMin} />
                   <Slider label="Maximum Age" min={18} max={100} value={ageMax} onChange={setAgeMax} />
-                  <Slider label="Maximum Distance" min={1} max={200} value={maxDistance} onChange={setMaxDistance} suffix=" km" />
+                  <Slider label="Maximum Distance" min={1} max={100} value={maxDistance} onChange={setMaxDistance} suffix=" km" />
                 </div>
               )}
             </motion.div>
