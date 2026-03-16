@@ -4,24 +4,66 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useMatchesStore } from "@/stores/matches.store";
+import { useAuthStore } from "@/stores/auth.store";
 import Skeleton from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
 import { formatMessageTime } from "@/lib/utils/formatters";
 import { Pin, MessageCircle, Heart } from "lucide-react";
+import type { ApiMatch } from "@/lib/api/types";
 
 export default function MatchesPage() {
   const router = useRouter();
-  const { matches, isLoading, fetchMatches } = useMatchesStore();
+  const { userId } = useAuthStore();
+  const {
+    matches,
+    conversations,
+    isLoading,
+    hasFetchedOnce,
+    pendingLikesCount,
+    fetchMatches,
+    fetchConversations,
+    fetchPendingLikes,
+    startFirebaseListener,
+    subscribeToLastMessages,
+  } = useMatchesStore();
 
+  // Fetch on mount — only if we haven't fetched yet, otherwise silently refresh
   useEffect(() => {
     fetchMatches();
-  }, [fetchMatches]);
+    fetchConversations(userId);
+    fetchPendingLikes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
-  const pinnedMatches = matches.filter((m) => m.is_pinned);
+  // Start Firebase real-time listener (persists across navigations — no cleanup on unmount)
+  useEffect(() => {
+    if (userId) {
+      startFirebaseListener(userId);
+    }
+    // Intentionally no cleanup — listener should persist across page navigations
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
+
+  // Subscribe to last_message previews for all conversations
+  useEffect(() => {
+    const allConvIds = [
+      ...matches.map((m) => m.conversation_id),
+      ...conversations.map((c) => c.conversation_id),
+    ].filter(Boolean);
+    if (allConvIds.length > 0) {
+      subscribeToLastMessages(allConvIds);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matches.length, conversations.length]);
+
+  // Merge matches + non-matched conversations for display
+  const allItems = [...matches, ...conversations];
+
+  const pinnedItems = allItems.filter((m) => m.is_pinned);
   const newMatches = matches.filter(
     (m) => !m.is_pinned && !m.last_message
   );
-  const conversations = matches
+  const activeConversations = allItems
     .filter((m) => !m.is_pinned && m.last_message)
     .sort((a, b) => {
       const aTime = a.last_message?.sent_at
@@ -33,7 +75,8 @@ export default function MatchesPage() {
       return bTime - aTime;
     });
 
-  const likesCount = 0; // TODO: fetch from pending likes endpoint
+  // Only show skeleton on very first load (no data yet)
+  const showSkeleton = isLoading && !hasFetchedOnce;
 
   return (
     <div className="h-full flex flex-col">
@@ -57,7 +100,7 @@ export default function MatchesPage() {
                 <div className="w-[50px] h-[50px] rounded-full bg-white/20 flex items-center justify-center mb-1">
                   <Heart className="w-8 h-8 text-white fill-white" />
                 </div>
-                <span className="text-2xl font-extrabold text-white">{likesCount}</span>
+                <span className="text-2xl font-extrabold text-white">{pendingLikesCount}</span>
                 <span className="text-sm font-semibold text-white/90">Likes</span>
               </div>
             </button>
@@ -104,7 +147,7 @@ export default function MatchesPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto pb-24 md:pb-8">
-          {isLoading ? (
+          {showSkeleton ? (
             <div className="px-4 space-y-4 pt-2">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3 p-2">
@@ -116,7 +159,7 @@ export default function MatchesPage() {
                 </div>
               ))}
             </div>
-          ) : matches.length === 0 ? (
+          ) : allItems.length === 0 && hasFetchedOnce ? (
             <div className="flex-1 flex flex-col items-center justify-center px-6 pt-20">
               <div className="w-20 h-20 rounded-full bg-card flex items-center justify-center mb-6">
                 <MessageCircle className="w-12 h-12 text-white/15" />
@@ -131,10 +174,10 @@ export default function MatchesPage() {
           ) : (
             <div className="px-4">
               {/* Pinned conversations */}
-              {pinnedMatches.length > 0 && (
+              {pinnedItems.length > 0 && (
                 <div className="pt-2 pb-1">
-                  <SectionHeader title="Pinned" count={pinnedMatches.length} />
-                  {pinnedMatches.map((match) => (
+                  <SectionHeader title="Pinned" count={pinnedItems.length} />
+                  {pinnedItems.map((match) => (
                     <ChatItem
                       key={match.match_id}
                       match={match}
@@ -159,13 +202,13 @@ export default function MatchesPage() {
                 </div>
               )}
 
-              {/* Regular conversations */}
-              {conversations.length > 0 && (
+              {/* Regular conversations (matched + non-matched merged) */}
+              {activeConversations.length > 0 && (
                 <div className="pt-2 pb-1">
-                  {(pinnedMatches.length > 0 || newMatches.length > 0) && (
+                  {(pinnedItems.length > 0 || newMatches.length > 0) && (
                     <SectionHeader title="Messages" />
                   )}
-                  {conversations.map((match) => (
+                  {activeConversations.map((match) => (
                     <ChatItem
                       key={match.match_id}
                       match={match}
@@ -204,7 +247,7 @@ function ChatItem({
   onClick,
   showNewBadge = false,
 }: {
-  match: ReturnType<typeof useMatchesStore.getState>["matches"][number];
+  match: ApiMatch;
   onClick: () => void;
   showNewBadge?: boolean;
 }) {
@@ -271,7 +314,7 @@ function ChatItem({
         >
           {match.last_message
             ? `${match.last_message.is_from_me ? "You: " : ""}${match.last_message.content}`
-            : "Say hello! 👋"}
+            : "Say hello! \uD83D\uDC4B"}
         </p>
       </div>
 

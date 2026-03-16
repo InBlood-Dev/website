@@ -9,7 +9,7 @@ import Header from "@/components/layout/Header";
 import Avatar from "@/components/ui/Avatar";
 import Skeleton from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
-import type { SearchUser, SearchResponse } from "@/lib/api/types";
+import type { SearchUser, SearchResponse, ProfileResponse } from "@/lib/api/types";
 import NearbyMap from "@/components/ui/NearbyMapDynamic";
 import {
   Plus,
@@ -80,6 +80,33 @@ export default function HomePage() {
   // Filters
   const [ageRange, setAgeRange] = useState({ min: 18, max: 35 });
   const [distance, setDistance] = useState(25);
+  const [isApplyingFilters, setIsApplyingFilters] = useState(false);
+
+  // Helper to fetch discovery feed (used on initial load and after filter apply)
+  const fetchDiscoveryFeed = useCallback(async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const datesRes = await apiGet<any>(ENDPOINTS.DISCOVERY.FEED, { limit: 30 });
+      const profiles = datesRes.data?.profiles || datesRes.data?.users || [];
+      setDates(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        profiles.map((p: any) => ({
+          user_id: p.user_id,
+          name: p.name,
+          age: p.age,
+          primary_photo: p.primary_photo || p.photos?.[0] || null,
+          distance: p.distance,
+          bio: p.bio,
+          match_score: p.match_score,
+          sexual_orientation: p.sexual_orientation,
+          is_online: p.is_online,
+          last_active_at: p.last_active_at,
+        }))
+      );
+    } catch {
+      // Dates not available
+    }
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -106,6 +133,25 @@ export default function HomePage() {
         // Location not available
       }
 
+      // Fetch user profile to sync filter preferences
+      try {
+        const profileRes = await apiGet<ProfileResponse>(ENDPOINTS.USERS.PROFILE);
+        const user = profileRes.data?.user;
+        if (user) {
+          const ageMin = user.preference_age_min ?? user.age_min;
+          const ageMax = user.preference_age_max ?? user.age_max;
+          const maxDist = user.preference_max_distance ?? user.proximity_range;
+          if (ageMin != null && ageMax != null) {
+            setAgeRange({ min: ageMin, max: ageMax });
+          }
+          if (maxDist != null) {
+            setDistance(maxDist);
+          }
+        }
+      } catch {
+        // Profile not available, use defaults
+      }
+
       // Fetch stories
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -124,36 +170,15 @@ export default function HomePage() {
         // Stories not available
       }
 
-      // Fetch date recommendations
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const datesRes = await apiGet<any>(ENDPOINTS.DISCOVERY.FEED, { limit: 15 });
-        const profiles = datesRes.data?.profiles || datesRes.data?.users || [];
-        setDates(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          profiles.slice(0, 15).map((p: any) => ({
-            user_id: p.user_id,
-            name: p.name,
-            age: p.age,
-            primary_photo: p.primary_photo || p.photos?.[0] || null,
-            distance: p.distance,
-            bio: p.bio,
-            match_score: p.match_score,
-            sexual_orientation: p.sexual_orientation,
-            is_online: p.is_online,
-            last_active_at: p.last_active_at,
-          }))
-        );
-      } catch {
-        // Dates not available
-      }
+      // Fetch date recommendations (same as app: GET /discovery/feed?limit=30)
+      await fetchDiscoveryFeed();
 
-      // Fetch nearby active users
+      // Fetch nearby active users (same as app: GET /home/nearby-active?limit=10)
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const nearbyRes = await apiGet<any>(ENDPOINTS.LOCATION.NEARBY_ACTIVE);
+        const nearbyRes = await apiGet<any>(ENDPOINTS.LOCATION.NEARBY_ACTIVE, { limit: 10 });
         const nearbyUsers = nearbyRes.data?.users || nearbyRes.data?.profiles || nearbyRes.data || [];
-        const mapped = nearbyUsers.slice(0, 30).map(
+        const mapped = nearbyUsers.map(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (u: any) => ({
             user_id: u.user_id,
@@ -172,7 +197,7 @@ export default function HomePage() {
         // Nearby not available
       }
 
-      // Fetch map users — pass lat/lng so backend returns real coordinates
+      // Fetch map users (same as app: GET /map/nearby?latitude=x&longitude=y&radius=25)
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mapParams: any = { radius: 25 };
@@ -205,6 +230,7 @@ export default function HomePage() {
     };
 
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Debounced search
@@ -221,6 +247,7 @@ export default function HomePage() {
       try {
         const response = await apiGet<SearchResponse>(ENDPOINTS.SEARCH, {
           q: searchQuery.trim(),
+          limit: 20,
         });
         setSearchResults(response.data?.users || response.data?.profiles || []);
       } catch {
@@ -737,12 +764,31 @@ export default function HomePage() {
               />
             </div>
 
-            {/* Apply */}
+            {/* Apply — same as app: PUT /users/preferences then re-fetch /discovery/feed?limit=30 */}
             <button
-              onClick={() => setShowFilters(false)}
-              className="w-full py-3.5 bg-gradient-to-r from-white/[0.12] to-white/[0.04] border border-white/[0.1] text-white text-sm font-medium rounded-xl hover:bg-white/[0.15] transition-all"
+              onClick={async () => {
+                setIsApplyingFilters(true);
+                try {
+                  await apiPut(ENDPOINTS.USERS.PREFERENCES, {
+                    age_min: ageRange.min,
+                    age_max: ageRange.max,
+                    proximity_range: distance,
+                  });
+                  await fetchDiscoveryFeed();
+                } catch {
+                  // Filter update failed
+                } finally {
+                  setIsApplyingFilters(false);
+                  setShowFilters(false);
+                }
+              }}
+              disabled={isApplyingFilters}
+              className={cn(
+                "w-full py-3.5 bg-gradient-to-r from-white/[0.12] to-white/[0.04] border border-white/[0.1] text-white text-sm font-medium rounded-xl hover:bg-white/[0.15] transition-all",
+                isApplyingFilters && "opacity-60 cursor-not-allowed"
+              )}
             >
-              Apply Filters
+              {isApplyingFilters ? "Applying..." : "Apply Filters"}
             </button>
           </div>
         </div>

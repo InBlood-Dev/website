@@ -45,7 +45,8 @@ const RELATIONSHIP_TYPES = [
   { id: "open", label: "Open to All", icon: Sparkles, color: "#32CD32" },
 ] as const;
 
-const LIMIT = 30;
+// Same as app: CHUNK_SIZE = 1000 in ExploreContext
+const LIMIT = 1000;
 
 export default function DiscoverPage() {
   const router = useRouter();
@@ -57,10 +58,10 @@ export default function DiscoverPage() {
   const [needsLocation, setNeedsLocation] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
 
-  // Filters
+  // Filters — app uses string[] for selectedRelTypes (single-select but array)
   const [showFilters, setShowFilters] = useState(false);
   const [onlineOnly, setOnlineOnly] = useState(false);
-  const [selectedRelType, setSelectedRelType] = useState<string | null>(null);
+  const [selectedRelTypes, setSelectedRelTypes] = useState<string[]>([]);
 
   // Search
   const [showSearch, setShowSearch] = useState(false);
@@ -71,7 +72,7 @@ export default function DiscoverPage() {
   const locationSent = useRef(false);
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const hasActiveFilters = onlineOnly || selectedRelType !== null;
+  const hasActiveFilters = onlineOnly || selectedRelTypes.length > 0;
 
   const updateLocation = useCallback(async (): Promise<boolean> => {
     if (locationSent.current) return true;
@@ -93,28 +94,28 @@ export default function DiscoverPage() {
     }
   }, []);
 
-  const loadProfiles = useCallback(async (currentOffset: number, relType?: string | null) => {
+  // Same as app: GET /explore/gallery?limit=1000&offset=0&relationship_type=long-term,casual
+  const loadProfiles = useCallback(async (currentOffset: number, relTypes?: string[]) => {
     try {
       setIsLoading(true);
       setError(null);
       setNeedsLocation(false);
 
-      let loaded: DisplayProfile[] = [];
-      let more = false;
-
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const params: Record<string, any> = { limit: LIMIT, offset: currentOffset };
-      const filterRelType = relType !== undefined ? relType : selectedRelType;
-      if (filterRelType) {
-        params.relationship_type = filterRelType;
+      const filterRelTypes = relTypes !== undefined ? relTypes : selectedRelTypes;
+      if (filterRelTypes.length > 0) {
+        // App sends comma-separated: relationship_type=long-term,casual
+        params.relationship_type = filterRelTypes.join(",");
       }
 
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const response = await apiGet<any>(ENDPOINTS.DISCOVERY.GALLERY, params);
         const rawProfiles = response.data?.profiles || response.data?.users || [];
+        console.log(`[DiscoverPage] GET /explore/gallery returned ${rawProfiles.length} profiles (requested limit=${LIMIT}, offset=${currentOffset})`);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        loaded = rawProfiles.map((u: any) => ({
+        const loaded: DisplayProfile[] = rawProfiles.map((u: any) => ({
           user_id: u.user_id,
           name: u.name,
           age: u.age,
@@ -126,7 +127,14 @@ export default function DiscoverPage() {
           bio: u.bio,
           match_score: u.match_score,
         }));
-        more = response.data?.has_more ?? loaded.length >= LIMIT;
+        const more = response.data?.has_more ?? loaded.length >= LIMIT;
+
+        if (currentOffset === 0) {
+          setProfiles(loaded);
+        } else {
+          setProfiles((prev) => [...prev, ...loaded]);
+        }
+        setHasMore(more);
       } catch (e: unknown) {
         const errMsg = e instanceof Error ? e.message : String(e);
         if (errMsg.toLowerCase().includes("location")) {
@@ -134,47 +142,14 @@ export default function DiscoverPage() {
           setIsLoading(false);
           return;
         }
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const response = await apiGet<any>(ENDPOINTS.DISCOVERY.FEED, params);
-          const rawProfiles = response.data?.profiles || response.data?.users || [];
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          loaded = rawProfiles.map((u: any) => ({
-            user_id: u.user_id,
-            name: u.name,
-            age: u.age,
-            distance: u.distance,
-            primary_photo: u.primary_photo || u.photos?.[0] || null,
-            is_online: u.is_online,
-            last_active_at: u.last_active_at,
-            relationship_types: u.relationship_types,
-            bio: u.bio,
-            match_score: u.match_score,
-          }));
-          more = response.data?.has_more ?? loaded.length >= LIMIT;
-        } catch (e2: unknown) {
-          const errMsg2 = e2 instanceof Error ? e2.message : String(e2);
-          if (errMsg2.toLowerCase().includes("location")) {
-            setNeedsLocation(true);
-            setIsLoading(false);
-            return;
-          }
-          throw e2;
-        }
+        throw e;
       }
-
-      if (currentOffset === 0) {
-        setProfiles(loaded);
-      } else {
-        setProfiles((prev) => [...prev, ...loaded]);
-      }
-      setHasMore(more);
     } catch {
       setError("Failed to load profiles. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  }, [selectedRelType]);
+  }, [selectedRelTypes]);
 
   const handleEnableLocation = useCallback(async () => {
     setLocationLoading(true);
@@ -203,8 +178,10 @@ export default function DiscoverPage() {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(async () => {
       try {
+        // Same as app: searchUsers(query, 20) → GET /search?q=query&limit=20
         const response = await apiGet<SearchResponse>(ENDPOINTS.SEARCH, {
           q: searchQuery.trim(),
+          limit: 20,
         });
         setSearchResults(response.data?.users || response.data?.profiles || []);
       } catch {
@@ -239,12 +216,13 @@ export default function DiscoverPage() {
     return () => observer.disconnect();
   }, [loadMore]);
 
-  const handleFilterApply = (relType: string | null, online: boolean) => {
-    setSelectedRelType(relType);
+  // Same as app: handleFilterApply(types[], onlineOnly) → applyFilters({ relationship_type: types })
+  const handleFilterApply = (relTypes: string[], online: boolean) => {
+    setSelectedRelTypes(relTypes);
     setOnlineOnly(online);
     setShowFilters(false);
     setOffset(0);
-    loadProfiles(0, relType);
+    loadProfiles(0, relTypes);
   };
 
   // Client-side online filter
@@ -252,9 +230,9 @@ export default function DiscoverPage() {
     ? profiles.filter((p) => p.is_online)
     : profiles;
 
-  // Active filter color
-  const activeFilterColor = selectedRelType
-    ? RELATIONSHIP_TYPES.find((t) => t.id === selectedRelType)?.color
+  // Active filter color — app uses first selected type's color
+  const activeFilterColor = selectedRelTypes.length > 0
+    ? RELATIONSHIP_TYPES.find((t) => t.id === selectedRelTypes[0])?.color ?? null
     : null;
 
   // Profiles formatted for the InfiniteGrid component
@@ -524,7 +502,7 @@ export default function DiscoverPage() {
       {showFilters && (
         <FilterModal
           onClose={() => setShowFilters(false)}
-          selectedRelType={selectedRelType}
+          selectedRelTypes={selectedRelTypes}
           onlineOnly={onlineOnly}
           onApply={handleFilterApply}
         />
@@ -533,18 +511,19 @@ export default function DiscoverPage() {
   );
 }
 
+// Same as app: FilterModal with string[] for selectedTypes (single-select toggling)
 function FilterModal({
   onClose,
-  selectedRelType,
+  selectedRelTypes,
   onlineOnly: initialOnlineOnly,
   onApply,
 }: {
   onClose: () => void;
-  selectedRelType: string | null;
+  selectedRelTypes: string[];
   onlineOnly: boolean;
-  onApply: (relType: string | null, onlineOnly: boolean) => void;
+  onApply: (relTypes: string[], onlineOnly: boolean) => void;
 }) {
-  const [selected, setSelected] = useState<string | null>(selectedRelType);
+  const [selected, setSelected] = useState<string[]>(selectedRelTypes);
   const [online, setOnline] = useState(initialOnlineOnly);
 
   return (
@@ -580,12 +559,13 @@ function FilterModal({
 
         <div className="space-y-2 mb-8">
           {RELATIONSHIP_TYPES.map((type) => {
-            const isSelected = selected === type.id;
+            // App uses single-select: toggleType toggles between [id] and []
+            const isSelected = selected.includes(type.id);
             const Icon = type.icon;
             return (
               <button
                 key={type.id}
-                onClick={() => setSelected(isSelected ? null : type.id)}
+                onClick={() => setSelected(isSelected ? [] : [type.id])}
                 className={cn(
                   "flex items-center gap-3 w-full p-4 rounded-xl border-2 transition-all",
                   isSelected ? "border-current" : "bg-white/[0.03] border-white/[0.08]"
