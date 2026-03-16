@@ -25,6 +25,7 @@ export default function MatchesPage() {
     fetchPendingLikes,
     startFirebaseListener,
     subscribeToLastMessages,
+    hydrateLastMessages,
   } = useMatchesStore();
 
   // Fetch on mount — only if we haven't fetched yet, otherwise silently refresh
@@ -44,13 +45,16 @@ export default function MatchesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
-  // Subscribe to last_message previews for all conversations
+  // Hydrate last messages from Firebase (one-shot read) + subscribe for real-time updates
   useEffect(() => {
     const allConvIds = [
       ...matches.map((m) => m.conversation_id),
       ...conversations.map((c) => c.conversation_id),
     ].filter(Boolean);
     if (allConvIds.length > 0) {
+      // One-shot read fills in last_message for matches that API didn't populate
+      hydrateLastMessages(allConvIds);
+      // Real-time subscription for ongoing updates
       subscribeToLastMessages(allConvIds);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

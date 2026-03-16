@@ -61,8 +61,6 @@ export const getFirebaseToken = async (): Promise<string> => {
   tokenExpiry = Date.now() + response.data.expires_in * 1000 - 60000;
 
   await authenticateFirebase(firebaseToken);
-  // Signal that Firebase auth is ready
-  authReadyResolve?.();
   return firebaseToken;
 };
 
@@ -78,7 +76,6 @@ export const clearFirebaseAuth = async (): Promise<void> => {
   }
   firebaseToken = null;
   tokenExpiry = null;
-  resetAuthReady();
 };
 
 export const refreshFirebaseToken = async (): Promise<string> => {

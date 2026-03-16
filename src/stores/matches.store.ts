@@ -11,8 +11,12 @@ import {
   subscribeToLastMessage,
   type FirebaseLastMessage,
 } from "@/lib/firebase/messaging";
-import { initializeFirebase } from "@/lib/firebase/config";
+import {
+  initializeFirebase,
+  getFirebaseDatabase,
+} from "@/lib/firebase/config";
 import { waitForFirebaseAuth } from "@/lib/firebase/auth";
+import { ref, get as firebaseGet } from "firebase/database";
 
 // Shape for non-matched conversations from GET /conversations
 export interface ApiConversation {
@@ -84,6 +88,7 @@ interface MatchesState {
   _firebaseUnsub: (() => void) | null;
   _lastMessageUnsubs: Map<string, () => void>;
   _convFetchDebounceTimer: ReturnType<typeof setTimeout> | null;
+  _hydratedConvIds: Set<string>;
 }
 
 interface MatchesActions {
@@ -100,6 +105,7 @@ interface MatchesActions {
   startFirebaseListener: (userId: string) => void;
   stopFirebaseListener: () => void;
   subscribeToLastMessages: (conversationIds: string[]) => void;
+  hydrateLastMessages: (conversationIds: string[]) => void;
 }
 
 export const useMatchesStore = create<MatchesState & MatchesActions>()(
@@ -115,11 +121,11 @@ export const useMatchesStore = create<MatchesState & MatchesActions>()(
     _firebaseUnsub: null,
     _lastMessageUnsubs: new Map(),
     _convFetchDebounceTimer: null,
+    _hydratedConvIds: new Set(),
 
     fetchMatches: async () => {
       const { hasFetchedOnce } = get();
       // Only show loading skeleton on very first fetch (no data yet)
-      // Subsequent fetches update silently (matching app's MatchesContext pattern)
       if (!hasFetchedOnce) {
         set({ isLoading: true, error: null });
       }
@@ -154,10 +160,6 @@ export const useMatchesStore = create<MatchesState & MatchesActions>()(
             .filter((c) => !c.is_matched)
             .map((c) => conversationToMatch(c, uid));
           set({ conversations: nonMatched });
-          console.log(
-            "[matches.store] Non-matched conversations:",
-            nonMatched.length
-          );
         }
       } catch (error) {
         console.error("[matches.store] Error fetching conversations:", error);
@@ -221,9 +223,87 @@ export const useMatchesStore = create<MatchesState & MatchesActions>()(
       });
     },
 
+    // One-shot read of last_message from Firebase for each conversation.
+    // This is more reliable than subscriptions for initial data because it
+    // uses a direct get() call and doesn't depend on subscription timing.
+    hydrateLastMessages: (conversationIds: string[]) => {
+      const { database } = initializeFirebase();
+      if (!database) return;
+
+      // Filter out already-hydrated IDs
+      const { _hydratedConvIds } = get();
+      const newIds = conversationIds.filter((id) => !_hydratedConvIds.has(id));
+      if (newIds.length === 0) return;
+
+      // Mark as hydrated immediately to prevent duplicate calls
+      const updatedHydrated = new Set(_hydratedConvIds);
+      newIds.forEach((id) => updatedHydrated.add(id));
+      set({ _hydratedConvIds: updatedHydrated });
+
+      waitForFirebaseAuth()
+        .then(async () => {
+          const db = getFirebaseDatabase();
+          const results = await Promise.allSettled(
+            newIds.map(async (convId) => {
+              const lastMsgRef = ref(
+                db,
+                `conversations/${convId}/last_message`
+              );
+              const snapshot = await firebaseGet(lastMsgRef);
+              const data = snapshot.val() as FirebaseLastMessage | null;
+              return { convId, data };
+            })
+          );
+
+          const updates = new Map<
+            string,
+            { content: string; sent_at: string; is_from_me: boolean }
+          >();
+          const uid = get().currentUserId;
+
+          for (const result of results) {
+            if (result.status === "fulfilled" && result.value.data) {
+              const { convId, data } = result.value;
+              updates.set(convId, {
+                content: data.content,
+                sent_at: new Date(data.sent_at).toISOString(),
+                is_from_me: data.sender_id === uid,
+              });
+            }
+          }
+
+          if (updates.size > 0) {
+            set((state) => {
+              const updateItems = (items: ApiMatch[]) =>
+                items.map((m) => {
+                  const lastMsg = updates.get(m.conversation_id);
+                  if (lastMsg && !m.last_message) {
+                    return {
+                      ...m,
+                      last_message: { message_id: "", ...lastMsg },
+                    };
+                  }
+                  return m;
+                });
+              return {
+                matches: updateItems(state.matches),
+                conversations: updateItems(state.conversations),
+              };
+            });
+            console.log(
+              "[matches.store] Hydrated last messages for",
+              updates.size,
+              "conversations from Firebase"
+            );
+          }
+        })
+        .catch((err) => {
+          console.warn("[matches.store] Failed to hydrate last messages:", err);
+        });
+    },
+
     // Firebase real-time: detect new conversations appearing in user_conversations/{userId}
     // Matches the app's MatchesContext pattern with 400ms debounce
-    // Waits for Firebase auth to complete before subscribing.
     startFirebaseListener: (userId: string) => {
       set({ currentUserId: userId });
       const { _firebaseUnsub } = get();
@@ -231,36 +311,41 @@ export const useMatchesStore = create<MatchesState & MatchesActions>()(
 
       const { database } = initializeFirebase();
       if (!database) {
-        console.warn("[matches.store] Firebase not configured, skipping real-time listener");
+        console.warn(
+          "[matches.store] Firebase not configured, skipping real-time listener"
+        );
         return;
       }
 
-      // Wait for Firebase auth before subscribing (RTDB security rules require it)
-      waitForFirebaseAuth().then(() => {
-        // Re-check after await (another call may have started the listener)
-        if (get()._firebaseUnsub) return;
+      waitForFirebaseAuth()
+        .then(() => {
+          // Re-check after await (another call may have started the listener)
+          if (get()._firebaseUnsub) return;
 
-        try {
-          const unsub = subscribeToUserConversations(
-            userId,
-            (_convId, _otherUserId) => {
-              const state = get();
-              if (state._convFetchDebounceTimer) {
-                clearTimeout(state._convFetchDebounceTimer);
+          try {
+            const unsub = subscribeToUserConversations(
+              userId,
+              (_convId, _otherUserId) => {
+                const state = get();
+                if (state._convFetchDebounceTimer) {
+                  clearTimeout(state._convFetchDebounceTimer);
+                }
+                const timer = setTimeout(() => {
+                  get().fetchConversations(userId);
+                  get().fetchMatches();
+                }, 400);
+                set({ _convFetchDebounceTimer: timer });
               }
-              const timer = setTimeout(() => {
-                get().fetchConversations(userId);
-                get().fetchMatches();
-              }, 400);
-              set({ _convFetchDebounceTimer: timer });
-            }
-          );
-          set({ _firebaseUnsub: unsub });
-          console.log("[matches.store] Firebase user_conversations listener started");
-        } catch {
-          console.warn("[matches.store] Firebase listener unavailable");
-        }
-      }).catch(() => {});
+            );
+            set({ _firebaseUnsub: unsub });
+            console.log(
+              "[matches.store] Firebase user_conversations listener started"
+            );
+          } catch {
+            console.warn("[matches.store] Firebase listener unavailable");
+          }
+        })
+        .catch(() => {});
     },
 
     stopFirebaseListener: () => {
@@ -276,55 +361,55 @@ export const useMatchesStore = create<MatchesState & MatchesActions>()(
       });
     },
 
-    // Subscribe to last_message previews for conversations (for real-time list updates)
-    // Waits for Firebase auth before subscribing.
+    // Subscribe to last_message previews for real-time updates (after initial hydration)
     subscribeToLastMessages: (conversationIds: string[]) => {
       const { database } = initializeFirebase();
-      if (!database) return; // Firebase not configured
+      if (!database) return;
 
-      // Wait for Firebase auth before subscribing (RTDB security rules require it)
-      waitForFirebaseAuth().then(() => {
-        const { _lastMessageUnsubs } = get();
-        const newUnsubs = new Map(_lastMessageUnsubs);
+      waitForFirebaseAuth()
+        .then(() => {
+          const { _lastMessageUnsubs } = get();
+          const newUnsubs = new Map(_lastMessageUnsubs);
 
-        for (const convId of conversationIds) {
-          if (newUnsubs.has(convId)) continue;
+          for (const convId of conversationIds) {
+            if (newUnsubs.has(convId)) continue;
 
-          try {
-            const unsub = subscribeToLastMessage(
-              convId,
-              (lastMsg: FirebaseLastMessage | null) => {
-                if (!lastMsg) return;
-                const state = get();
-                const uid = state.currentUserId;
-                const updateItem = (items: ApiMatch[]) =>
-                  items.map((m) =>
-                    m.conversation_id === convId
-                      ? {
-                          ...m,
-                          last_message: {
-                            message_id: "",
-                            content: lastMsg.content,
-                            sent_at: new Date(lastMsg.sent_at).toISOString(),
-                            is_from_me: lastMsg.sender_id === uid,
-                          },
-                        }
-                      : m
-                  );
-                set({
-                  matches: updateItem(state.matches),
-                  conversations: updateItem(state.conversations),
-                });
-              }
-            );
-            newUnsubs.set(convId, unsub);
-          } catch {
-            // Firebase subscription failed
+            try {
+              const unsub = subscribeToLastMessage(
+                convId,
+                (lastMsg: FirebaseLastMessage | null) => {
+                  if (!lastMsg) return;
+                  const state = get();
+                  const uid = state.currentUserId;
+                  const updateItem = (items: ApiMatch[]) =>
+                    items.map((m) =>
+                      m.conversation_id === convId
+                        ? {
+                            ...m,
+                            last_message: {
+                              message_id: "",
+                              content: lastMsg.content,
+                              sent_at: new Date(lastMsg.sent_at).toISOString(),
+                              is_from_me: lastMsg.sender_id === uid,
+                            },
+                          }
+                        : m
+                    );
+                  set({
+                    matches: updateItem(state.matches),
+                    conversations: updateItem(state.conversations),
+                  });
+                }
+              );
+              newUnsubs.set(convId, unsub);
+            } catch {
+              // Firebase subscription failed
+            }
           }
-        }
 
-        set({ _lastMessageUnsubs: newUnsubs });
-      }).catch(() => {});
+          set({ _lastMessageUnsubs: newUnsubs });
+        })
+        .catch(() => {});
     },
   })
 );
