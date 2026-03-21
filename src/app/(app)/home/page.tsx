@@ -9,8 +9,12 @@ import Header from "@/components/layout/Header";
 import Avatar from "@/components/ui/Avatar";
 import Skeleton from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
-import type { SearchUser, SearchResponse, ProfileResponse } from "@/lib/api/types";
+import type { SearchUser, SearchResponse, ProfileResponse, StoryUser } from "@/lib/api/types";
 import NearbyMap from "@/components/ui/NearbyMapDynamic";
+import StoryViewer from "@/components/stories/StoryViewer";
+import StoryUploadModal from "@/components/stories/StoryUploadModal";
+import MyStoriesModal from "@/components/stories/MyStoriesModal";
+import { useAuthStore } from "@/stores/auth.store";
 import {
   Plus,
   MapPin,
@@ -21,7 +25,7 @@ import {
   Minus,
 } from "lucide-react";
 
-interface StoryUser {
+interface HomeStoryUser {
   user_id: string;
   name: string;
   primary_photo: string | null;
@@ -61,7 +65,9 @@ function isUserOnline(lastActive?: string): boolean {
 
 export default function HomePage() {
   const router = useRouter();
-  const [stories, setStories] = useState<StoryUser[]>([]);
+  const { profilePicture, name: userName } = useAuthStore();
+  const [stories, setStories] = useState<HomeStoryUser[]>([]);
+  const [storyFeed, setStoryFeed] = useState<StoryUser[]>([]);
   const [dates, setDates] = useState<DateProfile[]>([]);
   const [nearby, setNearby] = useState<NearbyUser[]>([]);
   const [mapUsers, setMapUsers] = useState<NearbyUser[]>([]);
@@ -71,6 +77,10 @@ export default function HomePage() {
   const [showSearch, setShowSearch] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showMapModal, setShowMapModal] = useState(false);
+  const [viewingStoryIndex, setViewingStoryIndex] = useState<number | null>(null);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showMyStories, setShowMyStories] = useState(false);
+  const [hasOwnStories, setHasOwnStories] = useState(false);
 
   // Search
   const [searchResults, setSearchResults] = useState<SearchUser[]>([]);
@@ -157,6 +167,8 @@ export default function HomePage() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const storiesRes = await apiGet<any>(ENDPOINTS.STORIES.FEED);
         const storyUsers = storiesRes.data?.stories || storiesRes.data || [];
+        // Save full StoryUser data for StoryViewer
+        setStoryFeed(storyUsers as StoryUser[]);
         setStories(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           storyUsers.map((s: any) => ({
@@ -168,6 +180,16 @@ export default function HomePage() {
         );
       } catch {
         // Stories not available
+      }
+
+      // Check if user has own stories
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const myRes = await apiGet<any>(ENDPOINTS.STORIES.MY_STORIES);
+        const myStories = myRes.data?.stories || myRes.data || [];
+        setHasOwnStories(myStories.length > 0);
+      } catch {
+        // non-critical
       }
 
       // Fetch date recommendations (same as app: GET /discovery/feed?limit=30)
@@ -376,11 +398,41 @@ export default function HomePage() {
               {/* My Story */}
               <button
                 className="flex flex-col items-center gap-2 shrink-0"
-                onClick={() => {/* TODO: Create story */}}
+                onClick={() => {
+                  if (hasOwnStories) {
+                    setShowMyStories(true);
+                  } else {
+                    setShowUploadModal(true);
+                  }
+                }}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  setShowMyStories(true);
+                }}
               >
-                <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-pink-200 to-pink-300 flex items-center justify-center">
-                  <div className="w-[58px] h-[58px] rounded-full bg-background flex items-center justify-center">
-                    <Plus className="w-5 h-5 text-white/40" />
+                <div className={cn(
+                  "relative w-16 h-16 rounded-full p-[2px]",
+                  hasOwnStories
+                    ? "bg-gradient-to-br from-primary to-primary-light"
+                    : "bg-white/[0.15]"
+                )}>
+                  <div className="w-full h-full rounded-full overflow-hidden bg-background">
+                    {profilePicture ? (
+                      <Image
+                        src={profilePicture}
+                        alt={userName || "Me"}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-white/[0.04]">
+                        <span className="text-lg text-white/30">
+                          {userName?.[0]?.toUpperCase() || "?"}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center border-2 border-background">
                     <Plus className="w-3 h-3 text-white" />
@@ -401,7 +453,15 @@ export default function HomePage() {
                   <button
                     key={story.user_id}
                     className="flex flex-col items-center gap-2 shrink-0 group"
-                    onClick={() => router.push(`/profile/${story.user_id}`)}
+                    onClick={() => {
+                      // Find corresponding index in storyFeed
+                      const feedIndex = storyFeed.findIndex(
+                        (s) => s.user_id === story.user_id
+                      );
+                      if (feedIndex >= 0) {
+                        setViewingStoryIndex(feedIndex);
+                      }
+                    }}
                   >
                     <div
                       className={cn(
@@ -826,6 +886,53 @@ export default function HomePage() {
           </div>
         </div>
         </>
+      )}
+
+      {/* Story Viewer */}
+      {viewingStoryIndex !== null && storyFeed.length > 0 && (
+        <StoryViewer
+          storyUsers={storyFeed}
+          initialIndex={viewingStoryIndex}
+          onClose={() => setViewingStoryIndex(null)}
+        />
+      )}
+
+      {/* Story Upload Modal */}
+      {showUploadModal && (
+        <StoryUploadModal
+          onClose={() => setShowUploadModal(false)}
+          onUploaded={() => {
+            setHasOwnStories(true);
+            // Refresh story feed
+            (async () => {
+              try {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const storiesRes = await apiGet<any>(ENDPOINTS.STORIES.FEED);
+                const storyUsers = storiesRes.data?.stories || storiesRes.data || [];
+                setStoryFeed(storyUsers as StoryUser[]);
+                setStories(
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  storyUsers.map((s: any) => ({
+                    user_id: s.user_id || s.user?.user_id,
+                    name: s.name || s.user?.name || s.user_name || "User",
+                    primary_photo: s.primary_photo || s.user?.primary_photo || s.user_photo || null,
+                    has_unviewed: s.has_unviewed ?? true,
+                  }))
+                );
+              } catch {
+                // non-critical
+              }
+            })();
+          }}
+        />
+      )}
+
+      {/* My Stories Modal */}
+      {showMyStories && (
+        <MyStoriesModal
+          onClose={() => setShowMyStories(false)}
+          onAddNew={() => setShowUploadModal(true)}
+        />
       )}
     </div>
   );

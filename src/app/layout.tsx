@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { PostHogProvider } from "@/lib/analytics/posthog";
+import { ClarityScript } from "@/lib/analytics/clarity";
 
 export const metadata: Metadata = {
   title: "InBlood — Find Your Match",
@@ -24,7 +26,10 @@ export default function RootLayout({
       <body
         className="antialiased bg-background text-foreground"
       >
-        {children}
+        <ClarityScript />
+        <PostHogProvider>
+          {children}
+        </PostHogProvider>
       </body>
     </html>
   );

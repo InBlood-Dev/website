@@ -38,6 +38,16 @@ import {
   Loader2,
 } from "lucide-react";
 
+function formatDateSeparator(timestamp: number | Date): string {
+  const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+  const now = new Date();
+  if (date.toDateString() === now.toDateString()) return "Today";
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
+}
+
 export default function ChatPage() {
   const params = useParams();
   const router = useRouter();
@@ -51,7 +61,13 @@ export default function ChatPage() {
     addUnsubscriber,
     removeUnsubscriber,
   } = useChatStore();
-  const { matches, conversations: nonMatchedConvs, fetchMatches, fetchConversations } = useMatchesStore();
+  const {
+    matches,
+    conversations: nonMatchedConvs,
+    fetchMatches,
+    fetchConversations,
+    clearUnreadCount,
+  } = useMatchesStore();
 
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -88,6 +104,14 @@ export default function ChatPage() {
     if (nonMatchedConvs.length === 0) fetchConversations(userId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Clear unread count when opening this conversation
+  useEffect(() => {
+    if (conversationId) {
+      clearUnreadCount(conversationId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationId]);
 
   // Subscribe to messages + mark as delivered on open (matching app's ChatContext)
   useEffect(() => {
@@ -244,15 +268,17 @@ export default function ChatPage() {
     if (msg.status === "sending")
       return <Loader2 className="w-3 h-3 text-white/30 animate-spin" />;
     if (msg.status === "failed")
-      return <span className="text-[10px] text-error font-medium">Failed</span>;
+      return (
+        <span className="text-[10px] text-error font-medium">Failed</span>
+      );
     if (msg.seen_at)
-      return <CheckCheck className="w-3 h-3 text-primary" />;
+      return <CheckCheck className="w-3.5 h-3.5 text-primary" />;
     if (msg.delivered_at)
-      return <CheckCheck className="w-3 h-3 text-white/30" />;
-    return <Check className="w-3 h-3 text-white/30" />;
+      return <CheckCheck className="w-3.5 h-3.5 text-white/40" />;
+    return <Check className="w-3.5 h-3.5 text-white/40" />;
   };
 
-  // Message deletion handlers (matching app's ChatScreen)
+  // Message deletion handlers
   const handleDeleteForMe = async (msg: FirebaseMessage) => {
     setContextMenu(null);
     try {
@@ -271,7 +297,6 @@ export default function ChatPage() {
     }
   };
 
-  // Mute/unmute handler
   const handleToggleMute = async () => {
     setShowMenu(false);
     if (!userId) return;
@@ -288,11 +313,15 @@ export default function ChatPage() {
     }
   };
 
-  // Block handler (POST /blocks matching app)
   const handleBlock = async () => {
     setShowMenu(false);
     if (!otherUserId) return;
-    if (!window.confirm(`Block ${otherUser?.name}? They won't be able to contact you.`)) return;
+    if (
+      !window.confirm(
+        `Block ${otherUser?.name}? They won't be able to contact you.`
+      )
+    )
+      return;
     try {
       await post(ENDPOINTS.BLOCKS.BLOCK, { blocked_user_id: otherUserId });
       router.push("/matches");
@@ -301,7 +330,6 @@ export default function ChatPage() {
     }
   };
 
-  // Report handler (POST /reports matching app)
   const handleReport = async () => {
     setShowMenu(false);
     if (!otherUserId) return;
@@ -326,89 +354,96 @@ export default function ChatPage() {
     return true;
   });
 
-  // Remove optimistic messages that now have real counterparts
   const realIds = new Set(filteredMessages.map((m) => m.id));
   const visibleOptimistic = optimisticMessages.filter(
     (m) => !realIds.has(m.id) && m.status !== undefined
   );
   const allVisibleMessages = [...filteredMessages, ...visibleOptimistic];
 
-  // Determine if timestamp should show (sender change or 5-min gap)
-  const shouldShowTimestamp = (index: number) => {
+  // Show centered date separator only on day change or 1+ hour gap
+  const shouldShowDateSeparator = (index: number) => {
     if (index === 0) return true;
-    const current = allVisibleMessages[index];
-    const prev = allVisibleMessages[index - 1];
-    if (prev.sender_id !== current.sender_id) return true;
-    const currentTime = current.sent_at
-      ? new Date(current.sent_at).getTime()
-      : 0;
-    const prevTime = prev.sent_at ? new Date(prev.sent_at).getTime() : 0;
-    return currentTime - prevTime > 300000; // 5 minutes
+    const current = new Date(allVisibleMessages[index].sent_at);
+    const prev = new Date(allVisibleMessages[index - 1].sent_at);
+    // Different day
+    if (current.toDateString() !== prev.toDateString()) return true;
+    // 1+ hour gap
+    return current.getTime() - prev.getTime() > 3600000;
   };
 
-  // Check if message can be deleted for everyone (within 1 hour, only sender)
   const canDeleteForEveryone = (msg: FirebaseMessage) => {
     if (msg.sender_id !== userId) return false;
-    return Date.now() - msg.sent_at < 3600000; // 1 hour
+    return Date.now() - msg.sent_at < 3600000;
+  };
+
+  const isLastInGroup = (index: number) => {
+    if (index === allVisibleMessages.length - 1) return true;
+    const current = allVisibleMessages[index];
+    const next = allVisibleMessages[index + 1];
+    if (next.sender_id !== current.sender_id) return true;
+    const gap =
+      new Date(next.sent_at).getTime() - new Date(current.sent_at).getTime();
+    return gap > 300000;
   };
 
   return (
     <div className="h-full flex flex-col bg-background">
-      {/* ─── Header (matching mobile ChatScreen) ─── */}
+      {/* ─── Header ─── */}
       <div className="flex items-center gap-2 px-4 py-3 bg-card border-b border-white/[0.06] shrink-0">
-        {/* Back button */}
         <button
           onClick={() => router.push("/matches")}
-          className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/[0.06] text-white transition-colors"
+          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/[0.06] text-white/70 transition-colors"
         >
-          <ArrowLeft className="w-6 h-6" />
+          <ArrowLeft className="w-5 h-5" />
         </button>
 
-        {/* Profile info (clickable) */}
         {otherUser && (
           <button
             onClick={() => router.push(`/profile/${otherUser.user_id}`)}
             className="flex items-center gap-3 flex-1 min-w-0"
           >
-            <div className="w-11 h-11 rounded-full overflow-hidden bg-card shrink-0">
-              {otherUser.primary_photo ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={otherUser.primary_photo}
-                  alt={otherUser.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-white/30 text-lg font-bold">
-                  {otherUser.name.charAt(0)}
-                </div>
+            <div className="relative">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-white/[0.06] shrink-0">
+                {otherUser.primary_photo ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={otherUser.primary_photo}
+                    alt={otherUser.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-white/30 text-lg font-bold">
+                    {otherUser.name.charAt(0)}
+                  </div>
+                )}
+              </div>
+              {otherUser.is_online && (
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-card" />
               )}
             </div>
             <div className="text-left min-w-0">
-              <p className="font-semibold text-white text-base truncate leading-tight">
+              <p className="font-semibold text-white text-[15px] truncate leading-tight">
                 {otherUser.name}
               </p>
               {isOtherTyping ? (
                 <p className="text-xs text-primary font-medium">typing...</p>
               ) : otherUser.is_online ? (
-                <p className="text-xs text-success">Online</p>
+                <p className="text-xs text-success font-medium">Online</p>
               ) : (
-                <p className="text-xs text-white/25">Offline</p>
+                <p className="text-xs text-white/30">Offline</p>
               )}
             </div>
           </button>
         )}
 
-        {/* Menu button */}
         <div className="relative">
           <button
             onClick={() => setShowMenu(!showMenu)}
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/[0.06] text-white transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/[0.06] text-white/70 transition-colors"
           >
             <MoreVertical className="w-5 h-5" />
           </button>
 
-          {/* Dropdown menu */}
           {showMenu && (
             <>
               <div
@@ -423,12 +458,16 @@ export default function ChatPage() {
                   {isMuted ? (
                     <>
                       <BellRing className="w-5 h-5 text-white" />
-                      <span className="text-sm font-medium text-white">Unmute Notifications</span>
+                      <span className="text-sm font-medium text-white">
+                        Unmute
+                      </span>
                     </>
                   ) : (
                     <>
                       <BellOff className="w-5 h-5 text-white" />
-                      <span className="text-sm font-medium text-white">Mute Notifications</span>
+                      <span className="text-sm font-medium text-white">
+                        Mute
+                      </span>
                     </>
                   )}
                 </button>
@@ -438,7 +477,7 @@ export default function ChatPage() {
                   className="flex items-center gap-3 w-full px-4 py-3.5 hover:bg-white/[0.04] transition-colors text-left"
                 >
                   <Ban className="w-5 h-5 text-error" />
-                  <span className="text-sm font-medium text-error">Block User</span>
+                  <span className="text-sm font-medium text-error">Block</span>
                 </button>
                 <div className="h-px bg-white/[0.06]" />
                 <button
@@ -446,7 +485,9 @@ export default function ChatPage() {
                   className="flex items-center gap-3 w-full px-4 py-3.5 hover:bg-white/[0.04] transition-colors text-left"
                 >
                   <Flag className="w-5 h-5 text-warning" />
-                  <span className="text-sm font-medium text-warning">Report User</span>
+                  <span className="text-sm font-medium text-warning">
+                    Report
+                  </span>
                 </button>
               </div>
             </>
@@ -455,109 +496,131 @@ export default function ChatPage() {
       </div>
 
       {/* ─── Messages ─── */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
-        {/* Firebase error state */}
+      <div className="flex-1 overflow-y-auto px-4 py-3">
         {firebaseError && filteredMessages.length === 0 && (
-          <div className="flex-1 flex flex-col items-center justify-center py-20">
-            <div className="w-20 h-20 rounded-full bg-card flex items-center justify-center mb-6">
-              <MessageSquare className="w-10 h-10 text-white/15" />
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-16 h-16 rounded-full bg-card flex items-center justify-center mb-4">
+              <MessageSquare className="w-8 h-8 text-white/15" />
             </div>
-            <p className="text-white/30 text-sm">
-              Chat is not available right now
-            </p>
-            <p className="text-white/15 text-xs mt-1">
-              Firebase configuration is missing
-            </p>
+            <p className="text-white/30 text-sm">Chat unavailable</p>
           </div>
         )}
 
-        {/* Empty state */}
         {!firebaseError && allVisibleMessages.length === 0 && (
-          <div className="flex-1 flex flex-col items-center justify-center py-20">
-            <div className="w-20 h-20 rounded-full bg-card flex items-center justify-center mb-6">
-              <MessageSquare className="w-10 h-10 text-white/15" />
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-16 h-16 rounded-full bg-card flex items-center justify-center mb-4">
+              <MessageSquare className="w-8 h-8 text-white/15" />
             </div>
             <p className="text-white/40 text-sm text-center leading-relaxed">
               Say hello to {otherUser?.name || "them"}!
-              <br />
-              Start a conversation and get to know each other.
             </p>
           </div>
         )}
 
-        {/* Messages list */}
-        <div className="space-y-1">
+        {/* Messages */}
+        <div>
           {allVisibleMessages.map((msg, index) => {
             const isMe = msg.sender_id === userId;
-            const showTime = shouldShowTimestamp(index);
-            const isDeleted = msg.deleted_for_sender || msg.deleted_for_receiver;
+            const showDateSep = shouldShowDateSeparator(index);
+            const isDeleted =
+              msg.deleted_for_sender || msg.deleted_for_receiver;
             const isOptimistic = msg.id.startsWith("temp-");
+            const lastInGroup = isLastInGroup(index);
 
             return (
-              <div
-                key={msg.id}
-                className={cn("my-1", isMe ? "max-w-[80%] ml-auto" : "max-w-[80%]")}
-                onContextMenu={(e) => {
-                  if (isOptimistic || isDeleted) return;
-                  e.preventDefault();
-                  setContextMenu({ x: e.clientX, y: e.clientY, message: msg });
-                }}
-              >
-                {/* Opening move card */}
-                {msg.message_type === "opening_move" && (
-                  <OpeningMoveCard msg={msg} isMe={isMe} inputRef={inputRef} />
+              <div key={msg.id}>
+                {/* Date separator */}
+                {showDateSep && (
+                  <div className="flex justify-center my-3 first:mt-0">
+                    <span className="text-[11px] text-white/20 bg-white/[0.03] px-3 py-0.5 rounded-full">
+                      {formatDateSeparator(msg.sent_at)}
+                    </span>
+                  </div>
                 )}
 
-                {/* Regular message bubble */}
-                {msg.message_type !== "opening_move" && (
-                  <div
-                    className={cn(
-                      "rounded-2xl px-4 py-2.5",
-                      isMe
-                        ? "bg-primary text-white rounded-br-sm"
-                        : "bg-card text-white rounded-bl-sm",
-                      isDeleted && "opacity-60",
-                      isOptimistic && "opacity-70"
+                {/* Message row */}
+                <div
+                  className={cn(
+                    "flex mb-0.5",
+                    isMe ? "justify-end" : "justify-start"
+                  )}
+                  onContextMenu={(e) => {
+                    if (isOptimistic || isDeleted) return;
+                    e.preventDefault();
+                    setContextMenu({
+                      x: e.clientX,
+                      y: e.clientY,
+                      message: msg,
+                    });
+                  }}
+                >
+                  <div className="max-w-[70%] md:max-w-[55%]">
+                    {/* Opening move */}
+                    {msg.message_type === "opening_move" && (
+                      <OpeningMoveCard
+                        msg={msg}
+                        isMe={isMe}
+                        inputRef={inputRef}
+                      />
                     )}
-                  >
-                    {/* Media */}
-                    {msg.media_url && !isDeleted && (
-                      <div className="mb-2 rounded-xl overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={msg.media_url}
-                          alt="Media"
-                          className="max-w-[200px] rounded-xl"
-                        />
+
+                    {/* Regular bubble */}
+                    {msg.message_type !== "opening_move" && (
+                      <div
+                        className={cn(
+                          "inline-block px-3 py-[7px]",
+                          isMe ? "bg-primary text-white" : "bg-card text-white",
+                          // Tail on last message in group
+                          isMe
+                            ? lastInGroup
+                              ? "rounded-[18px] rounded-br-[4px]"
+                              : "rounded-[18px] rounded-r-[8px]"
+                            : lastInGroup
+                              ? "rounded-[18px] rounded-bl-[4px]"
+                              : "rounded-[18px] rounded-l-[8px]",
+                          isDeleted && "opacity-50",
+                          isOptimistic && "opacity-70"
+                        )}
+                      >
+                        {msg.media_url && !isDeleted && (
+                          <div className="mb-1.5 rounded-lg overflow-hidden">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={msg.media_url}
+                              alt="Media"
+                              className="max-w-[200px] rounded-lg"
+                            />
+                          </div>
+                        )}
+                        <p
+                          className={cn(
+                            "text-[15px] leading-[21px] whitespace-pre-wrap break-words",
+                            isDeleted && "italic text-white/40"
+                          )}
+                        >
+                          {isDeleted
+                            ? "This message was deleted"
+                            : msg.content}
+                        </p>
                       </div>
                     )}
 
-                    {/* Text */}
-                    <p
-                      className={cn(
-                        "text-[15px] leading-5 whitespace-pre-wrap",
-                        isDeleted && "italic text-white/40"
-                      )}
-                    >
-                      {isDeleted ? "This message was deleted" : msg.content}
-                    </p>
-                  </div>
-                )}
-
-                {/* Timestamp + status */}
-                {showTime && (
-                  <div
-                    className={cn(
-                      "flex items-center gap-1 mt-1 px-1",
-                      isMe ? "flex-row-reverse" : "flex-row"
+                    {/* Status + time (only on last message in group) */}
+                    {lastInGroup && (
+                      <div
+                        className={cn(
+                          "flex items-center gap-1 mt-0.5 px-0.5",
+                          isMe ? "justify-end" : "justify-start"
+                        )}
+                      >
+                        {isMe && getStatusIcon(msg)}
+                        <span className="text-[10px] text-white/20">
+                          {formatMessageTime(msg.sent_at)}
+                        </span>
+                      </div>
                     )}
-                  >
-                    <span className="text-[11px] text-white/25">
-                      {formatMessageTime(msg.sent_at)}
-                    </span>
-                    {isMe && getStatusIcon(msg)}
                   </div>
-                )}
+                </div>
               </div>
             );
           })}
@@ -565,24 +628,23 @@ export default function ChatPage() {
 
         {/* Typing indicator */}
         {isOtherTyping && (
-          <div className="my-2 max-w-[80%]">
-            <div className="bg-card rounded-2xl rounded-bl-sm px-5 py-3.5 inline-block">
-              <div className="flex gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-white/25 animate-bounce" />
-                <div className="w-2 h-2 rounded-full bg-white/40 animate-bounce [animation-delay:0.1s]" />
-                <div className="w-2 h-2 rounded-full bg-white/55 animate-bounce [animation-delay:0.2s]" />
+          <div className="flex justify-start mt-2 mb-1">
+            <div>
+              <div className="bg-card rounded-[18px] rounded-bl-[4px] px-4 py-2.5 inline-block">
+                <div className="flex gap-1">
+                  <div className="w-[6px] h-[6px] rounded-full bg-white/30 animate-bounce" />
+                  <div className="w-[6px] h-[6px] rounded-full bg-white/45 animate-bounce [animation-delay:0.15s]" />
+                  <div className="w-[6px] h-[6px] rounded-full bg-white/60 animate-bounce [animation-delay:0.3s]" />
+                </div>
               </div>
             </div>
-            <p className="text-[11px] text-white/25 mt-1 px-1">
-              {otherUser?.name} is typing...
-            </p>
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* ─── Message Context Menu (right-click) ─── */}
+      {/* ─── Context Menu ─── */}
       {contextMenu && (
         <>
           <div
@@ -590,35 +652,34 @@ export default function ChatPage() {
             onClick={() => setContextMenu(null)}
           />
           <div
-            className="fixed z-50 w-52 bg-card rounded-xl border border-white/[0.08] shadow-2xl overflow-hidden"
+            className="fixed z-50 w-48 bg-card rounded-xl border border-white/[0.08] shadow-2xl overflow-hidden"
             style={{
-              left: Math.min(contextMenu.x, window.innerWidth - 220),
-              top: Math.min(contextMenu.y, window.innerHeight - 150),
+              left: Math.min(contextMenu.x, window.innerWidth - 200),
+              top: Math.min(contextMenu.y, window.innerHeight - 120),
             }}
           >
-            {/* Delete for me (always available) */}
             <button
               onClick={() => handleDeleteForMe(contextMenu.message)}
-              className="flex items-center gap-3 w-full px-4 py-3 hover:bg-white/[0.04] transition-colors text-left"
+              className="flex items-center gap-2.5 w-full px-3.5 py-2.5 hover:bg-white/[0.04] transition-colors text-left"
             >
-              <Trash2 className="w-4 h-4 text-white/60" />
-              <span className="text-sm text-white">Delete for me</span>
+              <Trash2 className="w-4 h-4 text-white/50" />
+              <span className="text-[13px] text-white">Delete for me</span>
             </button>
-
-            {/* Delete for everyone (only sender, within 1 hour) */}
             {canDeleteForEveryone(contextMenu.message) && (
               <>
                 <div className="h-px bg-white/[0.06]" />
                 <button
                   onClick={() => handleDeleteForEveryone(contextMenu.message)}
-                  className="flex items-center gap-3 w-full px-4 py-3 hover:bg-white/[0.04] transition-colors text-left"
+                  className="flex items-center gap-2.5 w-full px-3.5 py-2.5 hover:bg-white/[0.04] transition-colors text-left"
                 >
                   <Trash2 className="w-4 h-4 text-error" />
                   <div>
-                    <span className="text-sm text-error">Delete for everyone</span>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <Clock className="w-3 h-3 text-white/20" />
-                      <span className="text-[10px] text-white/20">
+                    <span className="text-[13px] text-error">
+                      Delete for everyone
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-2.5 h-2.5 text-white/20" />
+                      <span className="text-[9px] text-white/20">
                         {Math.max(
                           0,
                           Math.floor(
@@ -626,8 +687,8 @@ export default function ChatPage() {
                               (Date.now() - contextMenu.message.sent_at)) /
                               60000
                           )
-                        )}{" "}
-                        min left
+                        )}
+                        m left
                       </span>
                     </div>
                   </div>
@@ -638,11 +699,10 @@ export default function ChatPage() {
         </>
       )}
 
-      {/* ─── Input (matching mobile ChatScreen) ─── */}
-      <div className="px-4 pt-2 pb-4 md:pb-4 bg-card border-t border-white/[0.06] shrink-0">
+      {/* ─── Input ─── */}
+      <div className="px-3 pt-2 pb-4 md:pb-3 shrink-0">
         <div className="flex items-end gap-2">
-          {/* Text input */}
-          <div className="flex-1 bg-background rounded-2xl px-4 py-1 min-h-[44px] max-h-[120px] flex items-end">
+          <div className="flex-1 bg-card rounded-full px-4 min-h-[44px] max-h-[120px] flex items-end border border-white/[0.06]">
             <textarea
               ref={inputRef}
               value={inputText}
@@ -655,16 +715,14 @@ export default function ChatPage() {
               style={{ minHeight: "20px", maxHeight: "100px" }}
             />
           </div>
-
-          {/* Send button */}
           <button
             onClick={handleSend}
             disabled={!inputText.trim() || isSending}
             className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all",
+              "w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-all mb-px",
               inputText.trim()
                 ? "bg-primary text-white"
-                : "bg-card text-white/25"
+                : "bg-white/[0.06] text-white/20"
             )}
           >
             <Send className="w-5 h-5" />
@@ -686,7 +744,6 @@ function OpeningMoveCard({
   isMe: boolean;
   inputRef: React.RefObject<HTMLTextAreaElement | null>;
 }) {
-  // Parse opening move content (app's ChatContext parses JSON)
   let question = msg.opening_move_question;
   let answer = msg.opening_move_answer;
 
@@ -703,12 +760,12 @@ function OpeningMoveCard({
   return (
     <div
       className={cn(
-        "rounded-xl overflow-hidden mb-1",
-        isMe ? "bg-card opacity-60 p-4" : "bg-card flex"
+        "rounded-xl overflow-hidden",
+        isMe ? "bg-card opacity-60 p-3.5" : "bg-card flex"
       )}
     >
       {!isMe && <div className="w-1 bg-primary shrink-0" />}
-      <div className={cn(!isMe && "p-4 flex-1")}>
+      <div className={cn(!isMe && "p-3.5 flex-1")}>
         {isMe && (
           <p className="text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-1">
             Your opening move

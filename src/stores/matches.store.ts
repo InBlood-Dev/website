@@ -102,6 +102,7 @@ interface MatchesActions {
     matchId: string,
     message: { content: string; sent_at: string; is_from_me: boolean }
   ) => void;
+  clearUnreadCount: (conversationId: string) => void;
   startFirebaseListener: (userId: string) => void;
   stopFirebaseListener: () => void;
   subscribeToLastMessages: (conversationIds: string[]) => void;
@@ -133,8 +134,21 @@ export const useMatchesStore = create<MatchesState & MatchesActions>()(
         const response = await apiGet<MatchesResponse>(
           ENDPOINTS.INTERACTIONS.MATCHES
         );
+        // Preserve hydrated last_message data when API doesn't return it
+        const existingMatches = get().matches;
+        const existingLastMessages = new Map(
+          existingMatches
+            .filter((m) => m.last_message)
+            .map((m) => [m.conversation_id, m.last_message])
+        );
+        const mergedMatches = response.data.matches.map((m) => {
+          if (!m.last_message && existingLastMessages.has(m.conversation_id)) {
+            return { ...m, last_message: existingLastMessages.get(m.conversation_id) };
+          }
+          return m;
+        });
         set({
-          matches: response.data.matches,
+          matches: mergedMatches,
           total: response.data.total,
           isLoading: false,
           hasFetchedOnce: true,
@@ -159,7 +173,20 @@ export const useMatchesStore = create<MatchesState & MatchesActions>()(
           const nonMatched = response.data.conversations
             .filter((c) => !c.is_matched)
             .map((c) => conversationToMatch(c, uid));
-          set({ conversations: nonMatched });
+          // Preserve hydrated last_message data
+          const existingConvs = get().conversations;
+          const existingLastMessages = new Map(
+            existingConvs
+              .filter((m) => m.last_message)
+              .map((m) => [m.conversation_id, m.last_message])
+          );
+          const mergedConvs = nonMatched.map((m) => {
+            if (!m.last_message && existingLastMessages.has(m.conversation_id)) {
+              return { ...m, last_message: existingLastMessages.get(m.conversation_id) };
+            }
+            return m;
+          });
+          set({ conversations: mergedConvs });
         }
       } catch (error) {
         console.error("[matches.store] Error fetching conversations:", error);
@@ -219,6 +246,19 @@ export const useMatchesStore = create<MatchesState & MatchesActions>()(
         return {
           matches: state.matches.map(updateFn),
           conversations: state.conversations.map(updateFn),
+        };
+      });
+    },
+
+    clearUnreadCount: (conversationId: string) => {
+      set((state) => {
+        const clear = (m: ApiMatch) =>
+          m.conversation_id === conversationId
+            ? { ...m, unread_count: 0 }
+            : m;
+        return {
+          matches: state.matches.map(clear),
+          conversations: state.conversations.map(clear),
         };
       });
     },
