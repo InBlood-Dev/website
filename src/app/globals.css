@@ -125,6 +125,23 @@ body.modal-open {
   box-shadow: 0 0 80px -20px rgba(229, 57, 53, 0.06), 0 25px 50px -12px rgba(0, 0, 0, 0.6);
 }
 
+/* Rainbow shimmer animation */
+@keyframes rainbowShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
 /* Noise texture overlay */
 .noise::after {
   content: '';
