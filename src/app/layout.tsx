@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   description:
     "InBlood is a modern dating platform that helps you find meaningful connections. Swipe, match, and chat with people near you.",
   keywords: ["dating", "matches", "connections", "InBlood"],
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
   openGraph: {
     title: "InBlood — Find Your Match",
     description:

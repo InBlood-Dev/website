@@ -388,9 +388,9 @@ export default function PricingPage() {
                 {[
                   { label: "Privacy Policy", href: "/privacy" },
                   { label: "Terms of Service", href: "/terms" },
-                  { label: "Cookie Policy", href: "/privacy" },
-                  { label: "Safety Tips", href: "/about" },
-                  { label: "Community Guidelines", href: "/about" },
+                  { label: "Cookie Policy", href: "/cookie-policy" },
+                  { label: "Safety Tips", href: "/safety-tips" },
+                  { label: "Community Guidelines", href: "/community-guidelines" },
                 ].map((link) => (
                   <li key={link.label}>
                     <Link href={link.href} className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light">
