@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { get as apiGet, put, postFormData, del } from "@/lib/api/client";
+import { get as apiGet, post, put, postFormData, del } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 import type {
   ApiUserProfile,
@@ -81,9 +81,7 @@ export const useUserStore = create<UserState & UserActions>()((set) => ({
   },
 
   addTag: async (tagId) => {
-    await import("@/lib/api/client").then((m) =>
-      m.post(ENDPOINTS.USERS.TAGS, { tag_ids: [tagId] })
-    );
+    await post(ENDPOINTS.USERS.TAGS, { tag_ids: [tagId] });
   },
 
   removeTag: async (tagId) => {

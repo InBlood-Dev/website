@@ -115,7 +115,9 @@ const request = async <T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> => {
   const url = `${API_BASE_URL}${endpoint}`;
-  console.log(`[API] ${options.method || "GET"} ${endpoint} | token: ${authToken ? "yes" : "NO"}`);
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[API] ${options.method || "GET"} ${endpoint} | token: ${authToken ? "yes" : "NO"}`);
+  }
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
   const headers = options.headers || buildHeaders();
@@ -131,7 +133,9 @@ const request = async <T>(
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      console.error(`[API] ${response.status} ${endpoint}`, JSON.stringify(data));
+      if (process.env.NODE_ENV === "development") {
+        console.error(`[API] ${response.status} ${endpoint}`, JSON.stringify(data));
+      }
       if (response.status === HTTP_STATUS.UNAUTHORIZED && !isLoggingOut) {
         const result = await refreshTokens();
 

@@ -144,6 +144,20 @@ export const useFeedStore = create<FeedState & FeedActions>()((set, get) => ({
       });
     }
 
+    if (response.data.swipes_remaining !== null) {
+      set((state) => ({
+        dailyLimits: state.dailyLimits
+          ? {
+              ...state.dailyLimits,
+              swipes: {
+                ...state.dailyLimits.swipes,
+                remaining: response.data.swipes_remaining,
+              },
+            }
+          : null,
+      }));
+    }
+
     return response.data;
   },
 

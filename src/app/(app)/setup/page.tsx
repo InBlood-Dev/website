@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/auth.store";
 import { useUserStore } from "@/stores/user.store";
-import { put, postFormData } from "@/lib/api/client";
+import { useUIStore } from "@/stores/ui.store";
+import { put, post, postFormData } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 import { get as apiGet } from "@/lib/api/client";
 import Input from "@/components/ui/Input";
@@ -64,6 +65,7 @@ const interestedInOptions = ["Man", "Woman", "Non-Binary", "Everyone"];
 export default function SetupPage() {
   const router = useRouter();
   const { completeProfileSetup } = useAuthStore();
+  const addToast = useUIStore((s) => s.addToast);
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -143,9 +145,7 @@ export default function SetupPage() {
 
       // Update relationship types via separate endpoint
       if (relationshipTypes.length > 0) {
-        await import("@/lib/api/client").then((m) =>
-          m.post(ENDPOINTS.USERS.RELATIONSHIP_TYPES, { types: relationshipTypes })
-        );
+        await post(ENDPOINTS.USERS.RELATIONSHIP_TYPES, { types: relationshipTypes });
       }
 
       for (const photo of photos) {
@@ -163,15 +163,17 @@ export default function SetupPage() {
 
       if (selectedTags.length > 0) {
         try {
-          await import("@/lib/api/client").then((m) =>
-            m.post(ENDPOINTS.USERS.TAGS, { tag_ids: selectedTags })
-          );
+          await post(ENDPOINTS.USERS.TAGS, { tag_ids: selectedTags });
         } catch {}
       }
 
       completeProfileSetup({ name: name.trim() });
       router.push("/discover");
-    } catch {
+    } catch (err) {
+      addToast({
+        type: "error",
+        message: err instanceof Error ? err.message : "Profile setup failed. Please try again.",
+      });
       setIsSubmitting(false);
     }
   };

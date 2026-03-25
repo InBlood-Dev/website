@@ -357,7 +357,7 @@ export default function UserProfilePage() {
                     try {
                       const res = await post<{ conversation_id: string }>(
                         ENDPOINTS.CONVERSATIONS.CREATE,
-                        { user_id: userId }
+                        { target_user_id: userId }
                       );
                       if (res.data?.conversation_id) {
                         router.push(`/chat/${res.data.conversation_id}`);
@@ -500,7 +500,7 @@ export default function UserProfilePage() {
             try {
               const res = await post<{ conversation_id: string }>(
                 ENDPOINTS.CONVERSATIONS.CREATE,
-                { user_id: userId }
+                { target_user_id: userId }
               );
               if (res.data?.conversation_id) {
                 router.push(`/chat/${res.data.conversation_id}`);
