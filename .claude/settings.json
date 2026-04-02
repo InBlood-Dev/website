@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -iE '\\\\.\\(jpg|jpeg|png|webp|avif|gif\\)$')",
+      "Bash(grep -iE '\\\\.\\(mp4|mov|webm|avi|mkv\\)$')"
+    ],
+    "additionalDirectories": [
+      "/Users/moon/Desktop",
+      "/Users/moon/Downloads"
+    ]
+  }
+}

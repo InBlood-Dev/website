@@ -55,7 +55,7 @@ export default function OnboardingPage() {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
-      router.push("/login");
+      router.push("/setup");
     }
   };
 
@@ -111,7 +111,7 @@ export default function OnboardingPage() {
 
         {currentSlide < slides.length - 1 ? (
           <button
-            onClick={() => router.push("/login")}
+            onClick={() => router.push("/setup")}
             className="w-full mt-4 text-white/20 text-[12px] uppercase tracking-[0.2em] hover:text-white/50 transition-colors h-8"
           >
             Skip

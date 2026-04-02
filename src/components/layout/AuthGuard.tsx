@@ -39,7 +39,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     console.log("[AuthGuard] Routing check:", { isAuthenticated, hasCompletedProfileSetup, pathname });
 
     if (!isAuthenticated) {
-      router.replace("/login");
+      router.replace("/");
       return;
     }
 

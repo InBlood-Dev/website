@@ -150,7 +150,7 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     setShowLogoutConfirm(false);
     await logout();
-    router.replace("/login");
+    router.replace("/");
   };
 
   const handleShare = async () => {

@@ -130,7 +130,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             email: userData?.email || null,
             name: userData?.name || null,
             profilePicture: userData?.primary_photo || null,
-            hasCompletedOnboarding: true,
+            hasCompletedOnboarding: hasProfile,
             hasCompletedProfileSetup: hasProfile,
           });
 

@@ -25,7 +25,7 @@ const plans = [
       { text: "Priority in discovery", included: false },
     ],
     cta: "Get Started",
-    href: "/onboarding",
+    href: "/",
   },
   {
     name: "Premium",
@@ -44,7 +44,7 @@ const plans = [
       { text: "Rewind last swipe", included: false },
     ],
     cta: "Upgrade Now",
-    href: "/login",
+    href: "/",
   },
   {
     name: "Premium Plus",
@@ -62,7 +62,7 @@ const plans = [
       { text: "Early access to features", included: true },
     ],
     cta: "Get Premium Plus",
-    href: "/login",
+    href: "/",
   },
 ];
 
@@ -190,7 +190,7 @@ export default function PricingPage() {
             <Link href="/about" className="text-[12px] text-white/50 hover:text-white transition-colors hidden sm:block uppercase tracking-[0.15em]">
               About
             </Link>
-            <Link href="/login" className="text-[12px] text-black bg-white rounded-full px-5 py-2.5 uppercase tracking-[0.15em] font-medium hover:bg-white/90 transition-colors">
+            <Link href="/" className="text-[12px] text-black bg-white rounded-full px-5 py-2.5 uppercase tracking-[0.15em] font-medium hover:bg-white/90 transition-colors">
               Sign In
             </Link>
           </div>

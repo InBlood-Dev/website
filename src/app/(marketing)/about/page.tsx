@@ -174,7 +174,7 @@ export default function AboutPage() {
             <Link href="/pricing" className="text-[12px] text-white/50 hover:text-white transition-colors hidden sm:block uppercase tracking-[0.15em]">
               Pricing
             </Link>
-            <Link href="/login" className="text-[12px] text-black bg-white rounded-full px-5 py-2.5 uppercase tracking-[0.15em] font-medium hover:bg-white/90 transition-colors">
+            <Link href="/" className="text-[12px] text-black bg-white rounded-full px-5 py-2.5 uppercase tracking-[0.15em] font-medium hover:bg-white/90 transition-colors">
               Sign In
             </Link>
           </div>
@@ -360,7 +360,7 @@ export default function AboutPage() {
               </p>
 
               <div data-manifesto className="flex items-center gap-6">
-                <Link href="/onboarding" className="text-[12px] uppercase tracking-[0.2em] text-white font-bold border-b-2 border-white pb-1 hover:text-primary hover:border-primary transition-colors">
+                <Link href="/" className="text-[12px] uppercase tracking-[0.2em] text-white font-bold border-b-2 border-white pb-1 hover:text-primary hover:border-primary transition-colors">
                   Join the movement
                 </Link>
                 <span className="text-white/15">|</span>
@@ -371,27 +371,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Editorial Numbers/Stats Strip */}
-      <div className="border-t border-b border-white/[0.08] py-6 md:py-8">
-        <div className="max-w-[1400px] mx-auto px-8 md:px-16">
-          <div className="flex items-center justify-between flex-wrap gap-6">
-            <div className="flex items-baseline gap-2">
-              <span className="text-[clamp(2rem,5vw,4rem)] font-black text-white tracking-tight">50K+</span>
-              <span className="text-[11px] uppercase tracking-[0.15em] text-white/30">Active Users</span>
-            </div>
-            <div className="w-px h-8 bg-white/10 hidden md:block" />
-            <div className="flex items-baseline gap-2">
-              <span className="text-[clamp(2rem,5vw,4rem)] font-black text-white tracking-tight">10K+</span>
-              <span className="text-[11px] uppercase tracking-[0.15em] text-white/30">Matches Made</span>
-            </div>
-            <div className="w-px h-8 bg-white/10 hidden md:block" />
-            <div className="flex items-baseline gap-2">
-              <span className="text-[clamp(2rem,5vw,4rem)] font-black text-white tracking-tight">4.8</span>
-              <span className="text-[11px] uppercase tracking-[0.15em] text-white/30">App Rating</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Values Grid - Magazine editorial cards */}
       <section className="px-8 md:px-16 py-16 md:py-24">
@@ -554,10 +533,10 @@ export default function AboutPage() {
             connections on InBlood.
           </p>
           <div data-cta className="flex gap-3 flex-wrap justify-center">
-            <Link href="/onboarding" className="rounded-full px-10 py-4 bg-primary text-white text-[12px] uppercase tracking-[0.15em] font-medium hover:bg-primary-dark transition-colors">
+            <Link href="/" className="rounded-full px-10 py-4 bg-primary text-white text-[12px] uppercase tracking-[0.15em] font-medium hover:bg-primary-dark transition-colors">
               Start Now &mdash; It&apos;s Free
             </Link>
-            <Link href="/onboarding" className="w-14 h-14 rounded-full bg-white flex items-center justify-center hover:scale-105 transition-transform">
+            <Link href="/" className="w-14 h-14 rounded-full bg-white flex items-center justify-center hover:scale-105 transition-transform">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" /></svg>
             </Link>
           </div>
