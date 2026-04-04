@@ -48,6 +48,7 @@ export const sendMessageToFirebase = async (
   messageType: "text" | "image" | "video" | "audio" = "text",
   mediaUrl?: string
 ): Promise<string> => {
+  console.log("[FB Msg] sendMessage:", { conversationId, senderId, receiverId });
   const db = getFirebaseDatabase();
   const messagesRef = ref(db, `conversations/${conversationId}/messages`);
   const newMessageRef = push(messagesRef);
@@ -108,11 +109,14 @@ export const subscribeToMessages = (
     limitToLast(limit)
   );
 
+  console.log("[FB Msg] Subscribing to:", conversationId);
+
   const listener = onValue(
     messagesRef,
     (snapshot: DataSnapshot) => {
       const messagesData = snapshot.val();
       if (!messagesData) {
+        console.log("[FB Msg] No messages for:", conversationId);
         callback([]);
         return;
       }
@@ -131,10 +135,11 @@ export const subscribeToMessages = (
         })
         .sort((a, b) => a.sent_at - b.sent_at);
 
+      console.log("[FB Msg] Received", messages.length, "messages");
       callback(messages);
     },
     (error) => {
-      console.error("[Firebase Messaging] Error:", error);
+      console.error("[FB Msg] onValue error:", error?.message || error);
     }
   );
 

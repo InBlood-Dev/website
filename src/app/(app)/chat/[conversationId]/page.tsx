@@ -122,28 +122,34 @@ export default function ChatPage() {
 
     let cancelled = false;
 
+    console.log("[Chat] Waiting for Firebase auth...", { conversationId, userId });
+
     waitForFirebaseAuth()
       .then(() => {
         if (cancelled) return;
+        console.log("[Chat] Firebase auth ready, subscribing to messages");
         setFirebaseReady(true);
 
         try {
-          // Mark as delivered immediately when opening conversation (app does this)
-          markMessagesAsDelivered(conversationId, userId).catch(() => {});
+          markMessagesAsDelivered(conversationId, userId).catch((err) =>
+            console.warn("[Chat] markDelivered failed:", err?.message)
+          );
 
           const unsub = subscribeToMessages(conversationId, (msgs) => {
+            console.log("[Chat] Messages received:", msgs.length);
             setMessages(conversationId, msgs);
-            // Clear optimistic messages once real ones arrive
             setOptimisticMessages([]);
             markMessagesAsSeen(conversationId, userId).catch(() => {});
           });
 
           addUnsubscriber(`messages-${conversationId}`, unsub);
-        } catch {
+        } catch (err) {
+          console.error("[Chat] subscribeToMessages threw:", err);
           setFirebaseError(true);
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[Chat] waitForFirebaseAuth failed:", err?.message);
         if (!cancelled) setFirebaseError(true);
       });
 
@@ -233,12 +239,14 @@ export default function ChatPage() {
     setOptimisticMessages((prev) => [...prev, optimisticMsg]);
 
     try {
+      console.log("[Chat] Sending message:", { conversationId, userId, otherUserId });
       await sendMessageToFirebase(
         conversationId,
         userId,
         otherUserId,
         text
       );
+      console.log("[Chat] Message sent successfully");
 
       // Push notification (fire-and-forget)
       post(ENDPOINTS.NOTIFICATIONS.MESSAGE_SENT, {
@@ -247,7 +255,8 @@ export default function ChatPage() {
         message_preview:
           text.length > 100 ? text.slice(0, 100) + "..." : text,
       }).catch(() => {});
-    } catch {
+    } catch (err) {
+      console.error("[Chat] Send failed:", err);
       // Mark optimistic message as failed
       setOptimisticMessages((prev) =>
         prev.map((m) =>
