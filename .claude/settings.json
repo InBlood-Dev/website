@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(grep -iE '\\\\.\\(jpg|jpeg|png|webp|avif|gif\\)$')",
-      "Bash(grep -iE '\\\\.\\(mp4|mov|webm|avi|mkv\\)$')"
+      "Bash(grep -iE '\\\\.\\(mp4|mov|webm|avi|mkv\\)$')",
+      "Read(//Users/moon/Documents/inblood/website/**)"
     ],
     "additionalDirectories": [
       "/Users/moon/Desktop",

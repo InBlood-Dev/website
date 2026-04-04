@@ -330,13 +330,13 @@ export default function LandingPage() {
               <div className="absolute -inset-1 rounded-full bg-primary/30 blur-[6px]" />
               <Image src="/logo.png" alt="InBlood" width={28} height={28} className="relative z-10 object-contain" />
             </div>
-            <span className="text-sm font-bold text-white uppercase tracking-[0.15em]">InBlood</span>
+            <span className="text-sm font-medium text-white tracking-[0.15em]" style={{ fontFamily: "'Archivo', sans-serif" }}>InBlood</span>
           </Link>
-          <div className="hidden md:flex items-center gap-6">
+          {/* <div className="hidden md:flex items-center gap-6">
             <Link href="/about" className="text-[12px] text-white/50 hover:text-white transition-colors uppercase tracking-[0.15em]">
               About
             </Link>
-          </div>
+          </div> */}
         </div>
       </nav>
 
@@ -374,12 +374,12 @@ export default function LandingPage() {
           </div>
 
           <p className="text-white/70 text-[18px] md:text-[22px] leading-relaxed max-w-2xl font-light mb-8">
-            Inblood.com is an adult community founded after being in love addictively (bubu); important is to know what it is: lust or love? Let&apos;s figure it out at Inblood: Temptation, Obsession you can&apos;t escape.
+            Is it lust or love? Let&apos;s figure it out at Inblood &mdash; Temptation, Obsession you can&apos;t escape.
           </p>
           <div className="flex gap-3 flex-wrap justify-center">
-            <Link href="/about" className="inline-block rounded-full px-10 py-4 border border-white/20 text-white text-[12px] uppercase tracking-[0.15em] font-medium hover:bg-white hover:text-black transition-all">
+            {/* <Link href="/about" className="inline-block rounded-full px-10 py-4 border border-white/20 text-white text-[12px] uppercase tracking-[0.15em] font-medium hover:bg-white hover:text-black transition-all">
               About Us
-            </Link>
+            </Link> */}
             <a href="https://play.google.com/store/apps/details?id=com.inblood.app&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full px-10 py-4 bg-primary text-white text-[12px] uppercase tracking-[0.15em] font-medium hover:bg-primary-dark transition-all">
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-1.4h-.001l-2.49 2.49-2.302-2.302 2.302-2.302 2.49 2.49a.999.999 0 010 1.623zm-3.906-2.808L2.855 2.166l10.937 6.333z"/></svg>
               Download App
@@ -395,80 +395,32 @@ export default function LandingPage() {
       </section>
 
       {/* Login Section */}
-      <section id="hero-login" className="relative min-h-screen flex flex-col md:flex-row">
-        {/* Mobile: Full-width image at top, bleeding off edges */}
-        <div className="md:hidden relative w-full -mx-4" style={{ width: "calc(100% + 2rem)" }}>
-          <div className="relative h-[280px] overflow-hidden">
-            <Image
-              src="/images/hero-new.png"
-              alt="InBlood"
-              fill
-              className="object-cover"
-              sizes="100vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-          </div>
-        </div>
-
-        {/* Desktop: Left image panel - capsule shape coming from left */}
-        <div className="hidden md:flex md:w-1/2 relative items-center justify-center">
-          <div
-            className="absolute top-[6%] bottom-[6%] overflow-hidden"
-            style={{ left: "-25%", width: "140%", borderRadius: "0 999px 999px 0" }}
-          >
-            <Image
-              src="/images/hero-new.png"
-              alt="InBlood"
-              fill
-              className="object-cover"
-              sizes="60vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/70" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent" />
-          </div>
-          <div className="absolute bottom-12 left-12 right-12 z-10">
-            <p className="text-[11px] uppercase tracking-[0.3em] text-white/40 mb-4">InBlood</p>
-            <p className="text-3xl font-light text-white leading-tight tracking-tight">
-              Where real connections begin.
-            </p>
-          </div>
-        </div>
-
-        {/* Right: Login form */}
-        <div className="w-full md:w-1/2 flex flex-1 items-center justify-center p-6 md:p-12 relative overflow-hidden">
+      <section id="hero-login" className="relative min-h-screen flex items-center justify-center px-6 md:px-12">
 
         <div className="w-full max-w-md relative z-10">
-          <div data-hero-line className="text-center mb-6">
-            <Image src="/logo.png" alt="InBlood" width={56} height={56} className="mx-auto mb-4 rounded-2xl" />
-            <h1 className="text-4xl font-light text-white tracking-tight mb-3">
-              InBlood
-            </h1>
-            <p className="text-white/30 text-sm font-light">
-              Find your match. Start your story.
-            </p>
-          </div>
 
           <div data-hero-line className="space-y-4">
             <button
               onClick={handleGoogleLogin}
               disabled={isLoading || !gsiReady}
-              className={`w-full flex items-center justify-center gap-3 px-6 py-4 text-sm font-medium transition-all disabled:opacity-50 ${
+              className={`group relative w-full flex items-center justify-center gap-3 px-6 py-5 text-sm font-bold rounded-2xl uppercase tracking-[0.15em] transition-all duration-300 disabled:opacity-50 overflow-hidden ${
                 acceptedTerms
-                  ? "bg-white text-gray-900 hover:bg-gray-100"
-                  : "bg-white/30 text-white/60 cursor-not-allowed"
+                  ? "bg-black border border-primary/40 text-primary hover:border-primary hover:shadow-[0_0_30px_rgba(220,38,38,0.3)]"
+                  : "bg-black/50 border border-white/10 text-white/40 cursor-not-allowed"
               }`}
             >
+              {acceptedTerms && <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />}
               {isLoading ? (
-                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
               ) : (
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                <svg className="w-5 h-5 relative z-10" viewBox="0 0 24 24">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill={acceptedTerms ? "#dc2626" : "#666"} />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill={acceptedTerms ? "#ff4444" : "#555"} />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill={acceptedTerms ? "#b91c1c" : "#555"} />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill={acceptedTerms ? "#ef4444" : "#666"} />
                 </svg>
               )}
-              Continue with Google
+              <span className="relative z-10">Continue with Google</span>
             </button>
 
             {/* Terms checkbox */}
@@ -505,29 +457,39 @@ export default function LandingPage() {
 
           {/* Community Links */}
           <div data-hero-line className="mt-8">
-            {/* Animated rainbow line */}
-            <div
-              className="h-[1.5px] w-full rounded-full mb-8 opacity-70"
-              style={{
-                background: "linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982, #E40303)",
-                backgroundSize: "200% 100%",
-                animation: "rainbowShimmer 4s linear infinite",
-              }}
-            />
+            {/* Glowing rainbow line */}
+            <div className="relative mb-8">
+              <div
+                className="h-[2px] w-full rounded-full"
+                style={{
+                  background: "linear-gradient(90deg, transparent, #000, #dc2626, #ff0000, #dc2626, #000, transparent)",
+                  backgroundSize: "200% 100%",
+                  animation: "rainbowShimmer 3s linear infinite",
+                }}
+              />
+              <div
+                className="absolute inset-0 h-[2px] w-full rounded-full blur-md opacity-80"
+                style={{
+                  background: "linear-gradient(90deg, transparent, #000, #dc2626, #ff0000, #dc2626, #000, transparent)",
+                  backgroundSize: "200% 100%",
+                  animation: "rainbowShimmer 3s linear infinite",
+                }}
+              />
+            </div>
 
-            <p
-              className="text-[10px] uppercase tracking-[0.35em] text-center mb-8 font-bold"
+            <h3
+              className="text-lg font-black uppercase tracking-[0.25em] text-center mb-8"
               style={{
-                background: "linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982)",
+                background: "linear-gradient(90deg, #dc2626, #ff0000, #fff, #ff0000, #dc2626)",
                 backgroundSize: "200% 100%",
-                animation: "rainbowShimmer 4s linear infinite",
+                animation: "rainbowShimmer 3s linear infinite",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
               }}
             >
               Join Our Community
-            </p>
+            </h3>
 
             {/* Social icons row with labels */}
             <div className="flex justify-between items-center px-2 mb-8">
@@ -655,7 +617,6 @@ export default function LandingPage() {
           </div>
 
         </div>
-        </div>
       </section>
 
 
@@ -663,37 +624,16 @@ export default function LandingPage() {
       <section ref={featuresRef} className="relative z-[1] py-12">
         <div className="max-w-[1400px] mx-auto px-8 md:px-16">
 
-          {/* --- Row 1: Hero spread --- */}
-          <div data-feature className="grid grid-cols-[1.3fr_1fr] gap-2 md:gap-3 mb-2 md:mb-3">
-            {/* Left: large title + celebrating love image */}
-            <div className="relative group">
-              <h2 className="text-[clamp(1.5rem,6vw,7rem)] font-black text-white leading-[0.9] tracking-[-0.03em] uppercase mb-2 md:mb-4">
-                Everything<br />You <span className="text-primary">Need</span>
-              </h2>
-              <div className="relative h-[200px] sm:h-[300px] md:h-[420px] overflow-hidden">
-                <Image src="/images/hero-pride.png" alt="Celebrating Love" fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 60vw, 55vw" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute bottom-3 left-3 right-3 md:bottom-6 md:left-6 md:right-6">
-                  <p className="text-white/70 text-[12px] sm:text-[16px] md:text-[20px] font-medium leading-snug">Celebrating love in all its beautiful forms.</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: video */}
-            <div className="relative group h-full min-h-[280px] sm:min-h-[400px] md:min-h-[560px] overflow-hidden">
-              <video
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              >
-                <source src="/images/girls-video.mp4" type="video/mp4" />
-              </video>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-              <div className="absolute bottom-3 left-3 right-3 md:bottom-6 md:left-6 md:right-6">
-                <p className="text-[10px] md:text-[12px] uppercase tracking-[0.2em] text-white/40 mb-1 md:mb-2">Community</p>
-                <p className="text-white/80 text-[12px] sm:text-[16px] md:text-[20px] font-medium leading-snug">A safe space to be yourself, connect, and find your people.</p>
+          {/* --- Row 1: Full width hero --- */}
+          <div data-feature className="mb-2 md:mb-3">
+            <h2 className="text-[clamp(1.5rem,6vw,7rem)] font-black text-white leading-[0.9] tracking-[-0.03em] uppercase mb-2 md:mb-4">
+              Everything<br />You <span className="text-primary">Need</span>
+            </h2>
+            <div className="relative group h-[250px] sm:h-[350px] md:h-[500px] overflow-hidden">
+              <Image src="/images/hero-pride.png" alt="Celebrating Love" fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="100vw" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4 md:bottom-8 md:left-8 md:right-8">
+                <p className="text-white/80 text-[14px] sm:text-[18px] md:text-[22px] font-medium leading-snug">Celebrating love in all its beautiful forms. A safe space to be yourself, connect, and find your people.</p>
               </div>
             </div>
           </div>
@@ -756,31 +696,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Large Outline Text - decorative */}
-      <section className="relative z-[1] py-10 overflow-hidden">
-        <div data-outline-text className="whitespace-nowrap flex items-center gap-8" ref={marqueeRef}>
-          {[...Array(4)].map((_, i) => (
-            <span key={i} className="text-[clamp(6rem,15vw,14rem)] font-black uppercase tracking-tight leading-none select-none" style={{ WebkitTextStroke: "2px rgba(255,255,255,0.08)", color: "transparent" }}>
-              InBlood &bull; Find Your Match &bull;
-            </span>
-          ))}
-        </div>
-      </section>
-
       {/* CTA Section with orbiting images */}
-      <section ref={ctaRef} className="relative z-[1] py-40 md:py-52 overflow-hidden">
+      <section ref={ctaRef} className="relative z-[1] py-40 md:py-52">
         {/* Left orbit */}
-        <div className="absolute left-[-350px] md:left-[-280px] top-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[700px] md:h-[700px] pointer-events-none">
+        <div className="absolute left-[-350px] md:left-[-280px] top-[25%] -translate-y-1/2 w-[500px] h-[500px] md:w-[700px] md:h-[700px] pointer-events-none">
           <div ref={orbitLeftRef} data-orbit-left className="relative w-full h-full">
             {[
-              { src: "/images/about-couple1.jpg", size: "w-24 h-24 md:w-32 md:h-32", pos: "top-0 left-1/2 -translate-x-1/2", blur: false },
-              { src: "/images/about-couple2.jpg", size: "w-20 h-20 md:w-28 md:h-28", pos: "top-[15%] right-[5%]", blur: true },
-              { src: "/images/about-couple3.jpg", size: "w-18 h-18 md:w-24 md:h-24", pos: "top-[45%] right-0", blur: false },
-              { src: "/images/about-couple4.jpg", size: "w-24 h-24 md:w-30 md:h-30", pos: "bottom-[15%] right-[10%]", blur: true },
-              { src: "/images/about-couple5.jpg", size: "w-20 h-20 md:w-28 md:h-28", pos: "bottom-0 left-1/2 -translate-x-1/2", blur: false },
-              { src: "/images/about-couple6.jpg", size: "w-18 h-18 md:w-24 md:h-24", pos: "bottom-[20%] left-[5%]", blur: true },
-              { src: "/images/about-couple7.jpg", size: "w-22 h-22 md:w-30 md:h-30", pos: "top-[40%] left-0", blur: false },
-              { src: "/images/about-couple8.jpg", size: "w-16 h-16 md:w-20 md:h-20", pos: "top-[18%] left-[8%]", blur: true },
+              { src: "/images/marquee1.png", size: "w-24 h-24 md:w-32 md:h-32", pos: "top-0 left-1/2 -translate-x-1/2", blur: false },
+              { src: "/images/marquee2.png", size: "w-20 h-20 md:w-28 md:h-28", pos: "top-[15%] right-[5%]", blur: true },
+              { src: "/images/marquee3.png", size: "w-18 h-18 md:w-24 md:h-24", pos: "top-[45%] right-0", blur: false },
+              { src: "/images/marquee4.png", size: "w-24 h-24 md:w-30 md:h-30", pos: "bottom-[15%] right-[10%]", blur: true },
+              { src: "/images/marquee5.png", size: "w-20 h-20 md:w-28 md:h-28", pos: "bottom-0 left-1/2 -translate-x-1/2", blur: false },
+              { src: "/images/marquee6.png", size: "w-18 h-18 md:w-24 md:h-24", pos: "bottom-[20%] left-[5%]", blur: true },
+              { src: "/images/marquee7.png", size: "w-22 h-22 md:w-30 md:h-30", pos: "top-[40%] left-0", blur: false },
+              { src: "/images/marquee8.png", size: "w-16 h-16 md:w-20 md:h-20", pos: "top-[18%] left-[8%]", blur: true },
             ].map((item, i) => (
               <div key={i} data-orbit-img className={`absolute ${item.pos} ${item.size} rounded-full overflow-hidden shadow-lg shadow-black/30 ${item.blur ? "blur-[2px] opacity-50" : "opacity-80"}`}>
                 <Image src={item.src} alt="" fill className="object-cover" sizes="130px" />
@@ -793,14 +722,15 @@ export default function LandingPage() {
         <div className="absolute right-[-350px] md:right-[-280px] top-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[700px] md:h-[700px] pointer-events-none">
           <div ref={orbitRightRef} data-orbit-right className="relative w-full h-full">
             {[
-              { src: "/images/about-couple8.jpg", size: "w-24 h-24 md:w-32 md:h-32", pos: "top-0 left-1/2 -translate-x-1/2", blur: true },
-              { src: "/images/about-couple7.jpg", size: "w-20 h-20 md:w-28 md:h-28", pos: "top-[12%] left-[5%]", blur: false },
-              { src: "/images/about-couple6.jpg", size: "w-18 h-18 md:w-24 md:h-24", pos: "top-[42%] left-0", blur: true },
-              { src: "/images/about-couple5.jpg", size: "w-22 h-22 md:w-30 md:h-30", pos: "bottom-[18%] left-[8%]", blur: false },
-              { src: "/images/about-couple4.jpg", size: "w-24 h-24 md:w-30 md:h-30", pos: "bottom-0 left-1/2 -translate-x-1/2", blur: false },
-              { src: "/images/about-couple3.jpg", size: "w-18 h-18 md:w-24 md:h-24", pos: "bottom-[15%] right-[5%]", blur: true },
-              { src: "/images/about-couple2.jpg", size: "w-20 h-20 md:w-28 md:h-28", pos: "top-[45%] right-0", blur: false },
-              { src: "/images/about-couple1.jpg", size: "w-16 h-16 md:w-20 md:h-20", pos: "top-[15%] right-[8%]", blur: true },
+              { src: "/images/marquee9.png", size: "w-24 h-24 md:w-32 md:h-32", pos: "top-0 left-1/2 -translate-x-1/2", blur: true },
+              { src: "/images/marquee10.png", size: "w-20 h-20 md:w-28 md:h-28", pos: "top-[12%] left-[5%]", blur: false },
+              { src: "/images/marquee11.png", size: "w-18 h-18 md:w-24 md:h-24", pos: "top-[42%] left-0", blur: true },
+              { src: "/images/marquee12.png", size: "w-22 h-22 md:w-30 md:h-30", pos: "bottom-[18%] left-[8%]", blur: false },
+              { src: "/images/marquee13.png", size: "w-24 h-24 md:w-30 md:h-30", pos: "bottom-0 left-1/2 -translate-x-1/2", blur: false },
+              { src: "/images/marquee14.png", size: "w-18 h-18 md:w-24 md:h-24", pos: "bottom-[15%] right-[5%]", blur: true },
+              { src: "/images/marquee15.png", size: "w-20 h-20 md:w-28 md:h-28", pos: "top-[45%] right-0", blur: false },
+              { src: "/images/marquee16.png", size: "w-16 h-16 md:w-20 md:h-20", pos: "top-[15%] right-[8%]", blur: true },
+              { src: "/images/marquee17.png", size: "w-20 h-20 md:w-24 md:h-24", pos: "bottom-[30%] right-[15%]", blur: false },
             ].map((item, i) => (
               <div key={i} data-orbit-img className={`absolute ${item.pos} ${item.size} rounded-full overflow-hidden shadow-lg shadow-black/30 ${item.blur ? "blur-[2px] opacity-50" : "opacity-80"}`}>
                 <Image src={item.src} alt="" fill className="object-cover" sizes="130px" />
@@ -809,9 +739,6 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Fade edges */}
-        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 
         {/* CTA content */}
         <div className="relative z-20 max-w-[800px] mx-auto px-8 md:px-16 text-center">
@@ -834,29 +761,21 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer ref={footerRef} className="relative z-[1] border-t border-white/[0.08] pt-20 pb-10 px-8 md:px-16">
+      <footer ref={footerRef} className="relative z-[1] border-t border-white/[0.08] pt-12 md:pt-20 pb-8 md:pb-10 px-4 sm:px-6 md:px-16">
         <div className="max-w-[1400px] mx-auto">
 
           {/* Big InBlood text */}
-          <div data-footer-big className="mb-16">
-            <h2 className="text-[clamp(4rem,12vw,14rem)] font-black text-white leading-[0.85] tracking-[-0.04em] uppercase select-none">
-              In<span className="text-primary">Blood</span>
+          <div data-footer-big className="mb-8 md:mb-16">
+            <h2 className="text-[clamp(3rem,12vw,14rem)] font-semibold leading-[0.85] tracking-[-0.04em] select-none" style={{ fontFamily: "'Archivo', sans-serif" }}>
+              <span className="text-primary">In</span><span className="text-white">Blood</span>
             </h2>
           </div>
 
           {/* Main footer grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-8 mb-10 md:mb-16">
 
             {/* Col 1: Logo + tagline */}
-            <div data-footer-col className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="relative w-9 h-9 flex items-center justify-center">
-                  <div className="absolute -inset-2 rounded-full bg-red-500/40 blur-[12px] animate-pulse" />
-                  <div className="absolute -inset-1 rounded-full bg-primary/30 blur-[6px]" />
-                  <Image src="/logo.png" alt="InBlood" width={28} height={28} className="relative z-10 object-contain" />
-                </div>
-                <span className="text-sm font-bold text-white uppercase tracking-[0.15em]">InBlood</span>
-              </div>
+            <div data-footer-col className="sm:col-span-2 md:col-span-1">
               <p className="text-white/30 text-[13px] font-light leading-relaxed max-w-[240px] mb-6">
                 A modern dating platform built for people who value genuine connections.
               </p>
@@ -876,44 +795,44 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Col 2: Navigation */}
-            <div data-footer-col>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-5 font-medium">Navigate</p>
-              <ul className="space-y-3">
-                {[
-                  { label: "Home", href: "/" },
-                  { label: "About", href: "/about" },
-                  { label: "Login", href: "/" },
-                  { label: "Privacy", href: "/privacy" },
-                  { label: "Terms", href: "/terms" },
-                ].map((link) => (
-                  <li key={link.label}>
-                    <Link href={link.href} className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Col 3: Legal */}
-            <div data-footer-col>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-5 font-medium">Legal</p>
-              <ul className="space-y-3">
-                {[
-                  { label: "Privacy Policy", href: "/privacy" },
-                  { label: "Terms of Service", href: "/terms" },
-                  { label: "Cookie Policy", href: "/cookie-policy" },
-                  { label: "Safety Tips", href: "/safety-tips" },
-                  { label: "Community Guidelines", href: "/community-guidelines" },
-                ].map((link) => (
-                  <li key={link.label}>
-                    <Link href={link.href} className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+            {/* Col 2 & 3: Navigation + Legal side by side */}
+            <div data-footer-col className="flex justify-between">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-5 font-medium">Navigate</p>
+                <ul className="space-y-3">
+                  {[
+                    { label: "Home", href: "/" },
+                    { label: "About", href: "/about" },
+                    { label: "Login", href: "/" },
+                    { label: "Privacy", href: "/privacy" },
+                    { label: "Terms", href: "/terms" },
+                  ].map((link) => (
+                    <li key={link.label}>
+                      <Link href={link.href} className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light">
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="text-right">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-5 font-medium">Legal</p>
+                <ul className="space-y-3">
+                  {[
+                    { label: "Privacy Policy", href: "/privacy" },
+                    { label: "Terms of Service", href: "/terms" },
+                    { label: "Cookie Policy", href: "/cookie-policy" },
+                    { label: "Safety Tips", href: "/safety-tips" },
+                    { label: "Community Guidelines", href: "/community-guidelines" },
+                  ].map((link) => (
+                    <li key={link.label}>
+                      <Link href={link.href} className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light">
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
             {/* Col 4: Get the App */}
@@ -922,19 +841,19 @@ export default function LandingPage() {
               <p className="text-white/30 text-[13px] font-light leading-relaxed mb-5">
                 Download InBlood and start matching today.
               </p>
-              <div className="flex flex-col gap-3">
-                <a href="#" className="group flex items-center gap-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/15 rounded-xl px-4 py-3 transition-all duration-300">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="white" className="opacity-50 group-hover:opacity-80 transition-opacity shrink-0"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-                  <div>
-                    <p className="text-[9px] uppercase tracking-[0.1em] text-white/30 leading-none">Coming Soon on</p>
-                    <p className="text-white/70 text-[13px] font-medium leading-tight">App Store</p>
-                  </div>
-                </a>
+              <div className="flex flex-col gap-2">
                 <a href="https://play.google.com/store/apps/details?id=com.inblood.app&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/15 rounded-xl px-4 py-3 transition-all duration-300">
                   <svg width="18" height="20" viewBox="0 0 18 20" fill="white" className="opacity-50 group-hover:opacity-80 transition-opacity shrink-0"><path d="M0.6 0.418C0.216 0.818 0 1.418 0 2.168v15.64c0 0.75 0.216 1.35 0.6 1.75l0.09 0.09L10.44 10l-0.09-0.09L0.6 0.418z"/><path d="M13.72 13.28L10.44 10l3.28-3.28 3.7 2.13c1.06 0.6 1.06 1.58 0 2.18l-3.7 2.25z"/><path d="M13.72 13.28L10.44 10 0.69 19.56c0.35 0.37 0.92 0.42 1.58 0.05l11.45-6.33z"/><path d="M13.72 6.72L2.27 0.39C1.61 0.02 1.04 0.07 0.69 0.44L10.44 10l3.28-3.28z"/></svg>
                   <div>
                     <p className="text-[9px] uppercase tracking-[0.1em] text-white/30 leading-none">Get it on</p>
                     <p className="text-white/70 text-[13px] font-medium leading-tight">Google Play</p>
+                  </div>
+                </a>
+                <a href="#" className="group flex items-center gap-3 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 opacity-50 cursor-default">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="white" className="opacity-50 shrink-0"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                  <div>
+                    <p className="text-[9px] uppercase tracking-[0.1em] text-white/30 leading-none">Coming Soon on</p>
+                    <p className="text-white/70 text-[13px] font-medium leading-tight">App Store</p>
                   </div>
                 </a>
               </div>
@@ -945,14 +864,14 @@ export default function LandingPage() {
           <div data-footer-line className="h-px bg-white/[0.06] mb-8" />
 
           {/* Bottom bar */}
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <p data-footer-bottom className="text-[11px] text-white/15 tracking-wider">
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <p data-footer-bottom className="text-[10px] sm:text-[11px] text-white/15 tracking-wider text-center sm:text-left">
               &copy; {new Date().getFullYear()} InBlood. All rights reserved.
             </p>
-            <div data-footer-bottom className="flex items-center gap-6">
-              <span className="text-[11px] text-white/15 tracking-wider">Designed with love</span>
+            <div data-footer-bottom className="flex items-center gap-4 sm:gap-6">
+              <span className="text-[10px] sm:text-[11px] text-white/15 tracking-wider">Designed with love</span>
               <div className="w-1 h-1 rounded-full bg-white/10" />
-              <span className="text-[11px] text-white/15 tracking-wider">Made for everyone</span>
+              <span className="text-[10px] sm:text-[11px] text-white/15 tracking-wider">Made for everyone</span>
             </div>
             <button
               data-footer-bottom
