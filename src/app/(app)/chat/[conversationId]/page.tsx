@@ -742,7 +742,7 @@ export default function ChatPage() {
       {/* ─── Input ─── */}
       <div className="px-3 pt-2 pb-4 md:pb-3 shrink-0">
         <div className="flex items-end gap-2">
-          <div className="flex-1 bg-card rounded-full px-4 min-h-[44px] max-h-[120px] flex items-end border border-white/[0.06]">
+          <div className="flex-1 bg-card rounded-full px-4 min-h-[44px] max-h-[120px] flex items-end border border-white/[0.06] focus-within:border-white/20 transition-colors">
             <textarea
               ref={inputRef}
               value={inputText}
@@ -751,7 +751,7 @@ export default function ChatPage() {
               placeholder="Type a message..."
               maxLength={1000}
               rows={1}
-              className="flex-1 bg-transparent text-white text-[15px] placeholder:text-white/25 focus:outline-none resize-none py-2.5 leading-5"
+              className="flex-1 bg-transparent text-white text-[15px] placeholder:text-white/25 focus:outline-none focus-visible:outline-none resize-none py-2.5 leading-5"
               style={{ minHeight: "20px", maxHeight: "100px" }}
             />
           </div>

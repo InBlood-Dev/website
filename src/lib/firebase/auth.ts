@@ -83,12 +83,17 @@ export const getFirebaseToken = async (): Promise<string> => {
     throw new Error(response.message || "Failed to get Firebase token");
   }
 
-  firebaseToken = response.data.firebase_token;
-  tokenExpiry = Date.now() + response.data.expires_in * 1000 - 60000;
+  const token = response.data.firebase_token;
+  const expiry = Date.now() + response.data.expires_in * 1000 - 60000;
 
+  // Authenticate with Firebase BEFORE caching the token
+  // so waitForFirebaseAuth() won't false-positive if signIn fails
   console.log("[FB Auth] Calling signInWithCustomToken...");
-  await authenticateFirebase(firebaseToken);
+  await authenticateFirebase(token);
   console.log("[FB Auth] signInWithCustomToken succeeded");
+
+  firebaseToken = token;
+  tokenExpiry = expiry;
   return firebaseToken;
 };
 
