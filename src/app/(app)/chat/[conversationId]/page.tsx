@@ -20,6 +20,7 @@ import {
   unmuteConversation,
   type FirebaseMessage,
 } from "@/lib/firebase/messaging";
+import { waitForFirebaseAuth } from "@/lib/firebase/auth";
 import { post } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 import {
@@ -97,6 +98,7 @@ export default function ChatPage() {
   const otherUserId = otherUser?.user_id || "";
 
   const [firebaseError, setFirebaseError] = useState(false);
+  const [firebaseReady, setFirebaseReady] = useState(false);
 
   // Ensure matches data is loaded (in case user navigates directly to chat)
   useEffect(() => {
@@ -114,28 +116,41 @@ export default function ChatPage() {
   }, [conversationId]);
 
   // Subscribe to messages + mark as delivered on open (matching app's ChatContext)
+  // Wait for Firebase auth first (matching matches.store pattern)
   useEffect(() => {
     if (!conversationId || !userId) return;
 
-    try {
-      // Mark as delivered immediately when opening conversation (app does this)
-      markMessagesAsDelivered(conversationId, userId).catch(() => {});
+    let cancelled = false;
 
-      const unsub = subscribeToMessages(conversationId, (msgs) => {
-        setMessages(conversationId, msgs);
-        // Clear optimistic messages once real ones arrive
-        setOptimisticMessages([]);
-        markMessagesAsSeen(conversationId, userId).catch(() => {});
+    waitForFirebaseAuth()
+      .then(() => {
+        if (cancelled) return;
+        setFirebaseReady(true);
+
+        try {
+          // Mark as delivered immediately when opening conversation (app does this)
+          markMessagesAsDelivered(conversationId, userId).catch(() => {});
+
+          const unsub = subscribeToMessages(conversationId, (msgs) => {
+            setMessages(conversationId, msgs);
+            // Clear optimistic messages once real ones arrive
+            setOptimisticMessages([]);
+            markMessagesAsSeen(conversationId, userId).catch(() => {});
+          });
+
+          addUnsubscriber(`messages-${conversationId}`, unsub);
+        } catch {
+          setFirebaseError(true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setFirebaseError(true);
       });
 
-      addUnsubscriber(`messages-${conversationId}`, unsub);
-
-      return () => {
-        removeUnsubscriber(`messages-${conversationId}`);
-      };
-    } catch {
-      setFirebaseError(true);
-    }
+    return () => {
+      cancelled = true;
+      removeUnsubscriber(`messages-${conversationId}`);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId, userId]);
 
@@ -143,25 +158,34 @@ export default function ChatPage() {
   useEffect(() => {
     if (!conversationId || !otherUserId || firebaseError) return;
 
-    try {
-      const unsub = subscribeToTypingIndicator(
-        conversationId,
-        otherUserId,
-        (isTyping) => setTyping(conversationId, isTyping)
-      );
+    let cancelled = false;
 
-      addUnsubscriber(`typing-${conversationId}`, unsub);
+    waitForFirebaseAuth()
+      .then(() => {
+        if (cancelled) return;
 
-      return () => {
-        removeUnsubscriber(`typing-${conversationId}`);
-        // Clean up own typing indicator on unmount
-        if (userId) {
-          setTypingIndicator(conversationId, userId, false).catch(() => {});
+        try {
+          const unsub = subscribeToTypingIndicator(
+            conversationId,
+            otherUserId,
+            (isTyping) => setTyping(conversationId, isTyping)
+          );
+
+          addUnsubscriber(`typing-${conversationId}`, unsub);
+        } catch {
+          // Firebase not configured
         }
-      };
-    } catch {
-      // Firebase not configured
-    }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+      removeUnsubscriber(`typing-${conversationId}`);
+      // Clean up own typing indicator on unmount
+      if (userId) {
+        setTypingIndicator(conversationId, userId, false).catch(() => {});
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId, otherUserId, firebaseError]);
 
@@ -497,6 +521,13 @@ export default function ChatPage() {
 
       {/* ─── Messages ─── */}
       <div className="flex-1 overflow-y-auto px-4 py-3">
+        {!firebaseReady && !firebaseError && (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-white/20 animate-spin mb-3" />
+            <p className="text-white/20 text-sm">Connecting...</p>
+          </div>
+        )}
+
         {firebaseError && filteredMessages.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 rounded-full bg-card flex items-center justify-center mb-4">

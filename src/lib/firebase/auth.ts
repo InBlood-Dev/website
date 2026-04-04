@@ -18,8 +18,11 @@ let tokenExpiry: number | null = null;
  * Resolves when Firebase Auth has a signed-in user.
  * Checks both: (a) the in-memory token we fetched, and
  * (b) Firebase Auth's persisted state (browserLocalPersistence).
- * Has a 10-second timeout so it never hangs forever.
+ * If no auth is in progress, actively triggers token fetch.
+ * Has a 15-second timeout so it never hangs forever.
  */
+let _authInProgress: Promise<void> | null = null;
+
 export const waitForFirebaseAuth = (): Promise<void> => {
   // Fast path: we already have a token from this session
   if (firebaseToken) return Promise.resolve();
@@ -29,12 +32,20 @@ export const waitForFirebaseAuth = (): Promise<void> => {
   if (!auth) return Promise.reject(new Error("Firebase not configured"));
   if (auth.currentUser) return Promise.resolve();
 
+  // If no auth attempt is in progress, actively trigger one
+  if (!_authInProgress) {
+    _authInProgress = getFirebaseToken()
+      .then(() => {})
+      .catch(() => {})
+      .finally(() => { _authInProgress = null; });
+  }
+
   // Wait for Firebase Auth to restore persisted state OR for our token fetch
   return new Promise<void>((resolve, reject) => {
     const timeout = setTimeout(() => {
       unsub();
       reject(new Error("Firebase auth timeout"));
-    }, 10000);
+    }, 15000);
 
     const unsub = onAuthStateChanged(auth, (user) => {
       if (user) {
