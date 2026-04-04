@@ -400,6 +400,7 @@ export default function LandingPage() {
         <div className="w-full max-w-md relative z-10">
 
           <div data-hero-line className="space-y-4">
+            <p className="text-white/40 text-2xl text-center font-light">Sign in to explore, connect, and find your match</p>
             <button
               onClick={handleGoogleLogin}
               disabled={isLoading || !gsiReady}
@@ -581,39 +582,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Get the App CTA */}
-            <a
-              href="https://play.google.com/store/apps/details?id=com.inblood.app&pcampaignid=web_share"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative block rounded-2xl overflow-hidden mt-4"
-            >
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: "linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982, #E40303)",
-                  backgroundSize: "200% 100%",
-                  animation: "rainbowShimmer 4s linear infinite",
-                  opacity: 0.15,
-                }}
-              />
-              <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{
-                  background: "linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982, #E40303)",
-                  backgroundSize: "200% 100%",
-                  animation: "rainbowShimmer 4s linear infinite",
-                  opacity: 0.3,
-                }}
-              />
-              <div className="relative flex items-center justify-center gap-3 px-6 py-4 backdrop-blur-sm">
-                <svg className="w-6 h-6 text-white/90 group-hover:text-white transition-colors" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-1.4h-.001l-2.49 2.49-2.302-2.302 2.302-2.302 2.49 2.49a.999.999 0 010 1.623zm-3.906-2.808L2.855 2.166l10.937 6.333z"/></svg>
-                <div className="flex flex-col">
-                  <span className="text-white/50 text-[9px] uppercase tracking-widest">Download on</span>
-                  <span className="text-white text-sm font-bold tracking-wide -mt-0.5">Google Play</span>
-                </div>
-              </div>
-            </a>
           </div>
 
         </div>
