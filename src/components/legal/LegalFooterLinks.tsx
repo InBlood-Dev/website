@@ -11,7 +11,7 @@ interface LegalLink {
 }
 
 export default function LegalFooterLinks() {
-  const [activeDoc, setActiveDoc] = useState<LegalLink | null>(null);
+  const [activeDocs, setActiveDocs] = useState<LegalLink[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -21,8 +21,7 @@ export default function LegalFooterLinks() {
         if (!res.ok) return;
         const json = await res.json();
         const pages: LegalLink[] = json.data || [];
-        const active = pages.find((p) => p.is_active) || null;
-        if (!cancelled) setActiveDoc(active);
+        if (!cancelled) setActiveDocs(pages.filter((p) => p.is_active));
       } catch {
         // ignore
       }
@@ -43,16 +42,16 @@ export default function LegalFooterLinks() {
           Legal
         </Link>
       </li>
-      {activeDoc && (
-        <li>
+      {activeDocs.map((doc) => (
+        <li key={doc.slug}>
           <Link
-            href={`/legal?doc=${activeDoc.slug}`}
+            href={`/legal?doc=${doc.slug}`}
             className="text-white/60 text-[13px] hover:text-white transition-colors duration-300 font-medium"
           >
-            {activeDoc.title}
+            {doc.title}
           </Link>
         </li>
-      )}
+      ))}
     </>
   );
 }

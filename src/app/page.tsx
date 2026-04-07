@@ -773,8 +773,6 @@ export default function LandingPage() {
                     { label: "Home", href: "/" },
                     { label: "About", href: "/about" },
                     { label: "Login", href: "/" },
-                    { label: "Privacy", href: "/privacy" },
-                    { label: "Terms", href: "/terms" },
                   ].map((link) => (
                     <li key={link.label}>
                       <Link href={link.href} className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light">

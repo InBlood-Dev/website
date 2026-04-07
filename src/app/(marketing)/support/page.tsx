@@ -156,11 +156,8 @@ export default function SupportPage() {
             &copy; {new Date().getFullYear()} InBlood. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="text-[11px] text-white/25 hover:text-white/50 transition-colors">
-              Privacy
-            </Link>
-            <Link href="/terms" className="text-[11px] text-white/25 hover:text-white/50 transition-colors">
-              Terms
+            <Link href="/legal" className="text-[11px] text-white/25 hover:text-white/50 transition-colors">
+              Legal
             </Link>
             <Link href="/" className="text-[11px] text-white/25 hover:text-white/50 transition-colors">
               Home
