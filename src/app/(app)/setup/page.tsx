@@ -15,6 +15,7 @@ import Slider from "@/components/ui/Slider";
 import { Plus, X, ArrowLeft, ArrowRight, Sparkles, Check } from "lucide-react";
 import type { ApiTag, TagsResponse } from "@/lib/api/types";
 import Image from "next/image";
+import { posthog } from "@/lib/analytics/posthog";
 
 const STEPS = [
   "basics",
@@ -167,6 +168,7 @@ export default function SetupPage() {
         } catch {}
       }
 
+      posthog?.capture("profile_setup_completed", { photos: photos.length });
       completeProfileSetup({ name: name.trim() });
       router.push("/discover");
     } catch (err) {

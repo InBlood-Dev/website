@@ -23,6 +23,7 @@ import {
 import { waitForFirebaseAuth } from "@/lib/firebase/auth";
 import { post } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
+import { posthog } from "@/lib/analytics/posthog";
 import {
   ArrowLeft,
   Send,
@@ -215,6 +216,7 @@ export default function ChatPage() {
     const text = inputText.trim();
     setInputText("");
     setIsSending(true);
+    posthog?.capture("message_sent", { length: text.length });
 
     // Reset textarea height
     if (inputRef.current) {

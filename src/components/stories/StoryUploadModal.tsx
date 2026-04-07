@@ -5,6 +5,7 @@ import Image from "next/image";
 import { postFormData } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 import { X, ImagePlus, Send, Loader2 } from "lucide-react";
+import { posthog } from "@/lib/analytics/posthog";
 
 interface StoryUploadModalProps {
   onClose: () => void;
@@ -66,6 +67,9 @@ export default function StoryUploadModal({
       );
 
       await postFormData(ENDPOINTS.STORIES.CREATE, formData);
+      posthog?.capture("story_created", {
+        media_type: file.type.startsWith("video/") ? "video" : "photo",
+      });
       onUploaded();
       onClose();
     } catch (err) {

@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import { setAuthToken, setOnUnauthorized, setOnTokenRefreshed } from "@/lib/api/client";
 import { initializeFirebaseAuth, clearFirebaseAuth } from "@/lib/firebase/auth";
 import { API_BASE_URL } from "@/lib/api/endpoints";
+import { posthog } from "@/lib/analytics/posthog";
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -137,6 +138,10 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           // Initialize Firebase (truly non-blocking — don't await)
           initializeFirebaseAuth().catch(() => {});
 
+          // Track auth event
+          const isNewUser = userData?.is_new_user === true;
+          posthog?.capture(isNewUser ? "user_signup" : "user_login", { method: "google" });
+
           return true;
         } catch {
           set({ isLoading: false });
@@ -145,6 +150,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       },
 
       logout: async () => {
+        posthog?.capture("user_logout");
         setAuthToken(null);
         localStorage.removeItem("inblood_refresh_token");
 

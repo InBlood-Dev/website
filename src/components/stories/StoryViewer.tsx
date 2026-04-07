@@ -9,6 +9,7 @@ import Avatar from "@/components/ui/Avatar";
 import { X, ChevronLeft, ChevronRight, BadgeCheck } from "lucide-react";
 import { formatLastActive } from "@/lib/utils/formatters";
 import type { StoryUser } from "@/lib/api/types";
+import { posthog } from "@/lib/analytics/posthog";
 
 interface StoryViewerProps {
   storyUsers: StoryUser[];
@@ -32,6 +33,7 @@ export default function StoryViewer({
   useEffect(() => {
     if (currentStory && !currentStory.has_viewed) {
       post(ENDPOINTS.STORIES.VIEW(currentStory.story_id)).catch(() => {});
+      posthog?.capture("story_viewed", { story_id: currentStory.story_id });
     }
   }, [currentStory]);
 
