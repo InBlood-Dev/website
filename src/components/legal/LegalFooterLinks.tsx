@@ -7,59 +7,52 @@ import { API_BASE_URL } from "@/lib/api/endpoints";
 interface LegalLink {
   slug: string;
   title: string;
+  is_active?: boolean;
 }
 
-const KNOWN_ROUTES: Record<string, string> = {
-  "privacy-policy": "/privacy",
-  "terms-of-service": "/terms",
-  "cookie-policy": "/cookie-policy",
-  "safety-tips": "/safety-tips",
-  "community-guidelines": "/community-guidelines",
-};
-
-const FALLBACK_LINKS = [
-  { label: "Privacy Policy", href: "/privacy" },
-  { label: "Terms of Service", href: "/terms" },
-  { label: "Cookie Policy", href: "/cookie-policy" },
-  { label: "Safety Tips", href: "/safety-tips" },
-  { label: "Community Guidelines", href: "/community-guidelines" },
-];
-
 export default function LegalFooterLinks() {
-  const [links, setLinks] = useState(FALLBACK_LINKS);
+  const [activeDoc, setActiveDoc] = useState<LegalLink | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     async function fetchLinks() {
       try {
         const res = await fetch(`${API_BASE_URL}/legal`);
         if (!res.ok) return;
         const json = await res.json();
-        const pages: LegalLink[] = json.data;
-        setLinks(
-          pages.map((p) => ({
-            label: p.title,
-            href: KNOWN_ROUTES[p.slug] || `/legal/${p.slug}`,
-          }))
-        );
+        const pages: LegalLink[] = json.data || [];
+        const active = pages.find((p) => p.is_active) || null;
+        if (!cancelled) setActiveDoc(active);
       } catch {
-        // keep fallback
+        // ignore
       }
     }
     fetchLinks();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
     <>
-      {links.map((link) => (
-        <li key={link.label}>
+      <li>
+        <Link
+          href="/legal"
+          className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light"
+        >
+          Legal
+        </Link>
+      </li>
+      {activeDoc && (
+        <li>
           <Link
-            href={link.href}
-            className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light"
+            href={`/legal?doc=${activeDoc.slug}`}
+            className="text-white/60 text-[13px] hover:text-white transition-colors duration-300 font-medium"
           >
-            {link.label}
+            {activeDoc.title}
           </Link>
         </li>
-      ))}
+      )}
     </>
   );
 }

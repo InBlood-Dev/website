@@ -1,7 +1,5 @@
-"use client";
-
-import LegalPageContent from "@/components/legal/LegalPageContent";
+import { redirect } from "next/navigation";
 
 export default function TermsPage() {
-  return <LegalPageContent slug="terms-of-service" fallbackTitle="Terms of Service" />;
+  redirect("/legal?doc=terms-of-service");
 }
