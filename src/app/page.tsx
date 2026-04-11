@@ -330,7 +330,7 @@ export default function LandingPage() {
               <div className="absolute -inset-1 rounded-full bg-primary/30 blur-[6px]" />
               <Image src="/logo.png" alt="InBlood" width={28} height={28} className="relative z-10 object-contain" />
             </div>
-            <span className="text-sm font-medium text-white tracking-[0.15em]" style={{ fontFamily: "'Archivo', sans-serif" }}>InBlood</span>
+            <span className="text-sm tracking-[0.15em]" style={{ fontFamily: "'Archivo Black', sans-serif", fontWeight: 900 }}><span className="text-primary">in</span><span className="text-white">Blood</span></span>
           </Link>
           {/* <div className="hidden md:flex items-center gap-6">
             <Link href="/about" className="text-[12px] text-white/50 hover:text-white transition-colors uppercase tracking-[0.15em]">
@@ -734,8 +734,8 @@ export default function LandingPage() {
 
           {/* Big InBlood text */}
           <div data-footer-big className="mb-8 md:mb-16">
-            <h2 className="text-[clamp(3rem,12vw,14rem)] font-semibold leading-[0.85] tracking-[-0.04em] select-none" style={{ fontFamily: "'Archivo', sans-serif" }}>
-              <span className="text-primary">In</span><span className="text-white">Blood</span>
+            <h2 className="text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.04em] select-none" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+              <span className="text-primary">in</span><span className="text-white">Blood</span>
             </h2>
           </div>
 
