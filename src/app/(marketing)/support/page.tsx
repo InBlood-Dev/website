@@ -17,7 +17,7 @@ export default function SupportPage() {
               height={32}
               className="rounded-lg"
             />
-            <span className="text-lg font-bold text-white">InBlood</span>
+            <span className="text-sm tracking-[0.15em]" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 900 }}><span className="text-primary">in</span><span className="text-white">Blood</span></span>
           </Link>
         </div>
       </nav>

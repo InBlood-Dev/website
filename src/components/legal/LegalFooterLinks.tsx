@@ -37,7 +37,7 @@ export default function LegalFooterLinks() {
       <li>
         <Link
           href="/legal"
-          className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light"
+          className="text-white/70 text-[16px] hover:text-white hover:translate-x-1 inline-block transition-all duration-300 font-light"
         >
           Legal
         </Link>
@@ -46,7 +46,7 @@ export default function LegalFooterLinks() {
         <li key={doc.slug}>
           <Link
             href={`/legal?doc=${doc.slug}`}
-            className="text-white/60 text-[13px] hover:text-white transition-colors duration-300 font-medium"
+            className="text-white/70 text-[16px] hover:text-white hover:translate-x-1 inline-block transition-all duration-300 font-light"
           >
             {doc.title}
           </Link>

@@ -7,7 +7,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useAuthStore } from "@/stores/auth.store";
-import LegalFooterLinks from "@/components/legal/LegalFooterLinks";
+import Footer from "@/components/layout/Footer";
 
 declare global {
   interface Window {
@@ -37,7 +37,6 @@ export default function LandingPage() {
   const marqueeRef = useRef<HTMLDivElement>(null);
   const orbitLeftRef = useRef<HTMLDivElement>(null);
   const orbitRightRef = useRef<HTMLDivElement>(null);
-  const footerRef = useRef<HTMLElement>(null);
   const [navHidden, setNavHidden] = useState(false);
   const lastScrollY = useRef(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -273,40 +272,6 @@ export default function LandingPage() {
         });
       });
 
-      // Footer animations
-      gsap.from("[data-footer-big]", {
-        scrollTrigger: { trigger: footerRef.current, start: "top 85%" },
-        y: 120,
-        opacity: 0,
-        duration: 1.2,
-        ease: "power3.out",
-      });
-
-      gsap.from("[data-footer-col]", {
-        scrollTrigger: { trigger: footerRef.current, start: "top 80%" },
-        y: 50,
-        opacity: 0,
-        duration: 0.9,
-        stagger: 0.1,
-        ease: "power3.out",
-      });
-
-      gsap.from("[data-footer-line]", {
-        scrollTrigger: { trigger: footerRef.current, start: "top 70%" },
-        scaleX: 0,
-        transformOrigin: "left center",
-        duration: 1,
-        ease: "power3.out",
-      });
-
-      gsap.from("[data-footer-bottom]", {
-        scrollTrigger: { trigger: footerRef.current, start: "top 65%" },
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.08,
-        ease: "power3.out",
-      });
     });
 
     return () => ctx.revert();
@@ -331,7 +296,7 @@ export default function LandingPage() {
               <div className="absolute -inset-1 rounded-full bg-primary/30 blur-[6px]" />
               <Image src="/logo.png" alt="InBlood" width={28} height={28} className="relative z-10 object-contain" />
             </div>
-            <span className="text-sm tracking-[0.15em]" style={{ fontFamily: "'Archivo Black', sans-serif", fontWeight: 900 }}><span className="text-primary">in</span><span className="text-white">Blood</span></span>
+            <span className="text-sm tracking-[0.15em]" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 900 }}><span className="text-primary">in</span><span className="text-white">Blood</span></span>
           </Link>
           {/* <div className="hidden md:flex items-center gap-6">
             <Link href="/about" className="text-[12px] text-white/50 hover:text-white transition-colors uppercase tracking-[0.15em]">
@@ -730,114 +695,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer ref={footerRef} className="relative z-[1] border-t border-white/[0.08] pt-12 md:pt-20 pb-8 md:pb-10 px-4 sm:px-6 md:px-16">
-        <div className="max-w-[1400px] mx-auto">
-
-          {/* Big InBlood text */}
-          <div data-footer-big className="mb-8 md:mb-16">
-            <h2 className="text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.04em] select-none" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
-              <span className="text-primary">in</span><span className="text-white">Blood</span>
-            </h2>
-          </div>
-
-          {/* Main footer grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-8 mb-10 md:mb-16">
-
-            {/* Col 1: Logo + tagline */}
-            <div data-footer-col className="sm:col-span-2 md:col-span-1">
-              <p className="text-white/30 text-[13px] font-light leading-relaxed max-w-[240px] mb-6">
-                A modern dating platform built for people who value genuine connections.
-              </p>
-              <div className="flex gap-3">
-                <a href="https://www.facebook.com/inblood.love" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:border-white/30 hover:bg-white/5 transition-all duration-300">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" className="opacity-40"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                </a>
-                <a href="https://www.instagram.com/inblood_community/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:border-white/30 hover:bg-white/5 transition-all duration-300">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" className="opacity-40"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-                </a>
-                <a href="https://whatsapp.com/channel/0029VbCiUaNJf05WMHQji23u" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:border-white/30 hover:bg-white/5 transition-all duration-300">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="white" className="opacity-40"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                </a>
-                <a href="https://www.linkedin.com/company/inblood-com/posts/?feedView=all" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:border-white/30 hover:bg-white/5 transition-all duration-300">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" className="opacity-40"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-                </a>
-              </div>
-            </div>
-
-            {/* Col 2 & 3: Navigation + Legal side by side */}
-            <div data-footer-col className="flex justify-between">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-5 font-medium">Navigate</p>
-                <ul className="space-y-3">
-                  {[
-                    { label: "Home", href: "/" },
-                    { label: "About", href: "/about" },
-                    { label: "Login", href: "/" },
-                  ].map((link) => (
-                    <li key={link.label}>
-                      <Link href={link.href} className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light">
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="text-right">
-                <p className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-5 font-medium">Legal</p>
-                <ul className="space-y-3">
-                  <LegalFooterLinks />
-                </ul>
-              </div>
-            </div>
-
-            {/* Col 4: Get the App */}
-            <div data-footer-col>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-5 font-medium">Get The App</p>
-              <p className="text-white/30 text-[13px] font-light leading-relaxed mb-5">
-                Download InBlood and start matching today.
-              </p>
-              <div className="flex flex-col gap-2">
-                <a href="https://play.google.com/store/apps/details?id=com.inblood.app&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/15 rounded-xl px-4 py-3 transition-all duration-300">
-                  <svg width="18" height="20" viewBox="0 0 18 20" fill="white" className="opacity-50 group-hover:opacity-80 transition-opacity shrink-0"><path d="M0.6 0.418C0.216 0.818 0 1.418 0 2.168v15.64c0 0.75 0.216 1.35 0.6 1.75l0.09 0.09L10.44 10l-0.09-0.09L0.6 0.418z"/><path d="M13.72 13.28L10.44 10l3.28-3.28 3.7 2.13c1.06 0.6 1.06 1.58 0 2.18l-3.7 2.25z"/><path d="M13.72 13.28L10.44 10 0.69 19.56c0.35 0.37 0.92 0.42 1.58 0.05l11.45-6.33z"/><path d="M13.72 6.72L2.27 0.39C1.61 0.02 1.04 0.07 0.69 0.44L10.44 10l3.28-3.28z"/></svg>
-                  <div>
-                    <p className="text-[9px] uppercase tracking-[0.1em] text-white/30 leading-none">Get it on</p>
-                    <p className="text-white/70 text-[13px] font-medium leading-tight">Google Play</p>
-                  </div>
-                </a>
-                <a href="#" className="group flex items-center gap-3 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 opacity-50 cursor-default">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="white" className="opacity-50 shrink-0"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-                  <div>
-                    <p className="text-[9px] uppercase tracking-[0.1em] text-white/30 leading-none">Coming Soon on</p>
-                    <p className="text-white/70 text-[13px] font-medium leading-tight">App Store</p>
-                  </div>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Divider line */}
-          <div data-footer-line className="h-px bg-white/[0.06] mb-8" />
-
-          {/* Bottom bar */}
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <p data-footer-bottom className="text-[10px] sm:text-[11px] text-white/15 tracking-wider text-center sm:text-left">
-              &copy; {new Date().getFullYear()} InBlood. All rights reserved.
-            </p>
-            <div data-footer-bottom className="flex items-center gap-4 sm:gap-6">
-              <span className="text-[10px] sm:text-[11px] text-white/15 tracking-wider">Designed with love</span>
-              <div className="w-1 h-1 rounded-full bg-white/10" />
-              <span className="text-[10px] sm:text-[11px] text-white/15 tracking-wider">Made for everyone</span>
-            </div>
-            <button
-              data-footer-bottom
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-white/25 hover:bg-white/5 transition-all duration-300 group"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-30 group-hover:opacity-60 transition-opacity"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-            </button>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Floating WhatsApp Button */}
       <a

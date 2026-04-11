@@ -101,7 +101,7 @@ function LegalPageInner() {
               height={32}
               className="rounded-lg"
             />
-            <span className="text-lg font-bold text-neutral-900">InBlood</span>
+            <span className="text-sm tracking-[0.15em]" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 900 }}><span className="text-primary">in</span><span className="text-white">Blood</span></span>
           </Link>
           <Link
             href="/"

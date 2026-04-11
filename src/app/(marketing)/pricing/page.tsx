@@ -185,7 +185,7 @@ export default function PricingPage() {
               <div className="absolute inset-0 rounded-full bg-primary/30 blur-[6px]" />
               <Image src="/logo.png" alt="InBlood" width={28} height={28} className="relative z-10 object-contain" />
             </div>
-            <span className="text-sm font-bold text-white uppercase tracking-[0.15em]">InBlood</span>
+            <span className="text-sm tracking-[0.15em]" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 900 }}><span className="text-primary">in</span><span className="text-white">Blood</span></span>
           </Link>
           <div className="flex items-center gap-6">
             <Link href="/about" className="text-[12px] text-white/50 hover:text-white transition-colors hidden sm:block uppercase tracking-[0.15em]">
@@ -343,7 +343,7 @@ export default function PricingPage() {
                   <div className="absolute inset-0 rounded-full bg-primary/30 blur-[6px]" />
                   <Image src="/logo.png" alt="InBlood" width={28} height={28} className="relative z-10 object-contain" />
                 </div>
-                <span className="text-sm font-bold text-white uppercase tracking-[0.15em]">InBlood</span>
+                <span className="text-sm tracking-[0.15em]" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 900 }}><span className="text-primary">in</span><span className="text-white">Blood</span></span>
               </div>
               <p className="text-white/30 text-[13px] font-light leading-relaxed max-w-[240px] mb-6">
                 A modern dating platform built for people who value genuine connections.
