@@ -225,9 +225,12 @@ export default function DiscoverPage() {
     loadProfiles(0, relTypes);
   };
 
-  // Client-side online filter
+  // Client-side online filter — derive from last_active_at (5-min threshold)
   const filteredProfiles = onlineOnly
-    ? profiles.filter((p) => p.is_online)
+    ? profiles.filter((p) => {
+        if (!p.last_active_at) return false;
+        return Date.now() - new Date(p.last_active_at).getTime() < 5 * 60 * 1000;
+      })
     : profiles;
 
   // Active filter color — app uses first selected type's color
@@ -243,7 +246,7 @@ export default function DiscoverPage() {
         name: p.name,
         age: p.age,
         primary_photo: p.primary_photo,
-        is_online: p.is_online,
+        is_online: p.last_active_at ? Date.now() - new Date(p.last_active_at).getTime() < 5 * 60 * 1000 : false,
         borderColor:
           activeFilterColor ||
           p.relationship_types?.[0]?.border_color ||
@@ -473,7 +476,7 @@ export default function DiscoverPage() {
                         </div>
                       )}
                       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      {profile.is_online && (
+                      {profile.last_active_at && Date.now() - new Date(profile.last_active_at).getTime() < 5 * 60 * 1000 && (
                         <div className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-success ring-2 ring-black/30" />
                       )}
                       <div className="absolute bottom-0 left-0 right-0 p-2.5">

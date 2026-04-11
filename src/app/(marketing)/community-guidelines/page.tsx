@@ -1,7 +1,5 @@
-"use client";
-
-import LegalPageContent from "@/components/legal/LegalPageContent";
+import { redirect } from "next/navigation";
 
 export default function CommunityGuidelinesPage() {
-  return <LegalPageContent slug="community-guidelines" fallbackTitle="Community Guidelines" />;
+  redirect("/legal?doc=community-guidelines");
 }

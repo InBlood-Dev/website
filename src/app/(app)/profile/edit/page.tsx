@@ -11,6 +11,7 @@ import Header from "@/components/layout/Header";
 import Chip from "@/components/ui/Chip";
 import Slider from "@/components/ui/Slider";
 import type { ApiTag } from "@/lib/api/types";
+import { posthog } from "@/lib/analytics/posthog";
 import {
   Plus,
   X,
@@ -213,6 +214,7 @@ export default function EditProfilePage() {
     try {
       await uploadPhoto(file);
       await fetchProfile();
+      posthog?.capture("photo_uploaded", { source: "profile_edit" });
       addToast({ message: "Photo uploaded!", type: "success" });
     } catch {
       addToast({ message: "Failed to upload photo", type: "error" });

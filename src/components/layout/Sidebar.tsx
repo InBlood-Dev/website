@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { useUIStore } from "@/stores/ui.store";
 import { useAuthStore } from "@/stores/auth.store";
+import { useMatchesStore } from "@/stores/matches.store";
 import Avatar from "@/components/ui/Avatar";
 import {
   Home,
@@ -31,6 +32,11 @@ export default function Sidebar() {
   const collapsed = useUIStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const { name, profilePicture, logout } = useAuthStore();
+  const { matches, conversations } = useMatchesStore();
+  const totalUnread = [...matches, ...conversations].reduce(
+    (sum, m) => sum + (m.unread_count || 0),
+    0
+  );
 
   return (
     <aside
@@ -77,7 +83,14 @@ export default function Sidebar() {
               {isActive && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-gradient-to-b from-primary to-primary-light" />
               )}
-              <Icon className={cn("w-[18px] h-[18px] shrink-0 transition-colors", isActive ? "text-primary" : "group-hover:text-white/50")} />
+              <div className="relative shrink-0">
+                <Icon className={cn("w-[18px] h-[18px] transition-colors", isActive ? "text-primary" : "group-hover:text-white/50")} />
+                {item.href === "/matches" && totalUnread > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-primary text-[10px] font-semibold text-white flex items-center justify-center">
+                    {totalUnread > 99 ? "99+" : totalUnread}
+                  </span>
+                )}
+              </div>
               {!collapsed && (
                 <span className="text-[13px] font-medium">{item.label}</span>
               )}

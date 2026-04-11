@@ -1,7 +1,5 @@
-"use client";
-
-import LegalPageContent from "@/components/legal/LegalPageContent";
+import { redirect } from "next/navigation";
 
 export default function SafetyTipsPage() {
-  return <LegalPageContent slug="safety-tips" fallbackTitle="Safety Tips" />;
+  redirect("/legal?doc=safety-tips");
 }

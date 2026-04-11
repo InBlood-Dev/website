@@ -1,7 +1,5 @@
-"use client";
-
-import LegalPageContent from "@/components/legal/LegalPageContent";
+import { redirect } from "next/navigation";
 
 export default function PrivacyPage() {
-  return <LegalPageContent slug="privacy-policy" fallbackTitle="Privacy Policy" />;
+  redirect("/legal?doc=privacy-policy");
 }

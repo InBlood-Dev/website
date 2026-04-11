@@ -5,6 +5,7 @@ import { get as apiGet, post } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 import Header from "@/components/layout/Header";
 import { useUIStore } from "@/stores/ui.store";
+import { posthog } from "@/lib/analytics/posthog";
 import { cn } from "@/lib/utils/cn";
 import type { SubscriptionPlan, SubscriptionStatusResponse } from "@/lib/api/types";
 import {
@@ -35,6 +36,10 @@ export default function PremiumPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const addToast = useUIStore((s) => s.addToast);
+
+  useEffect(() => {
+    posthog?.capture("premium_page_viewed");
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -119,6 +124,7 @@ export default function PremiumPage() {
     if (!plan) return;
 
     setIsPurchasing(true);
+    posthog?.capture("premium_checkout_started", { plan: plan.plan_key, amount: plan.price });
     try {
       const response = await post<{
         payment_session_id: string;
@@ -127,6 +133,10 @@ export default function PremiumPage() {
         plan_key: plan.plan_key,
       });
 
+      // NOTE: this only confirms order creation, not actual payment success.
+      // The real `premium_purchase_success` should be fired from a backend
+      // payment-confirmation webhook once the website integrates Cashfree.
+      posthog?.capture("premium_order_created", { plan: plan.plan_key, amount: plan.price });
       addToast({
         message: "Order created. Payment integration pending.",
         type: "info",

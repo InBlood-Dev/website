@@ -25,6 +25,12 @@ const firebaseConfigValid = !!(
   firebaseConfig.projectId
 );
 
+console.log("[FB Config] valid:", firebaseConfigValid,
+  "apiKey:", firebaseConfig.apiKey ? "set" : "MISSING",
+  "dbURL:", firebaseConfig.databaseURL ? "set" : "MISSING",
+  "projectId:", firebaseConfig.projectId ? "set" : "MISSING"
+);
+
 let app: FirebaseApp | null = null;
 let database: Database | null = null;
 let auth: Auth | null = null;

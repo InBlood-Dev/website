@@ -20,8 +20,10 @@ import {
   unmuteConversation,
   type FirebaseMessage,
 } from "@/lib/firebase/messaging";
+import { waitForFirebaseAuth } from "@/lib/firebase/auth";
 import { post } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
+import { posthog } from "@/lib/analytics/posthog";
 import {
   ArrowLeft,
   Send,
@@ -97,6 +99,7 @@ export default function ChatPage() {
   const otherUserId = otherUser?.user_id || "";
 
   const [firebaseError, setFirebaseError] = useState(false);
+  const [firebaseReady, setFirebaseReady] = useState(false);
 
   // Ensure matches data is loaded (in case user navigates directly to chat)
   useEffect(() => {
@@ -114,28 +117,47 @@ export default function ChatPage() {
   }, [conversationId]);
 
   // Subscribe to messages + mark as delivered on open (matching app's ChatContext)
+  // Wait for Firebase auth first (matching matches.store pattern)
   useEffect(() => {
     if (!conversationId || !userId) return;
 
-    try {
-      // Mark as delivered immediately when opening conversation (app does this)
-      markMessagesAsDelivered(conversationId, userId).catch(() => {});
+    let cancelled = false;
 
-      const unsub = subscribeToMessages(conversationId, (msgs) => {
-        setMessages(conversationId, msgs);
-        // Clear optimistic messages once real ones arrive
-        setOptimisticMessages([]);
-        markMessagesAsSeen(conversationId, userId).catch(() => {});
+    console.log("[Chat] Waiting for Firebase auth...", { conversationId, userId });
+
+    waitForFirebaseAuth()
+      .then(() => {
+        if (cancelled) return;
+        console.log("[Chat] Firebase auth ready, subscribing to messages");
+        setFirebaseReady(true);
+
+        try {
+          markMessagesAsDelivered(conversationId, userId).catch((err) =>
+            console.warn("[Chat] markDelivered failed:", err?.message)
+          );
+
+          const unsub = subscribeToMessages(conversationId, (msgs) => {
+            console.log("[Chat] Messages received:", msgs.length);
+            setMessages(conversationId, msgs);
+            setOptimisticMessages([]);
+            markMessagesAsSeen(conversationId, userId).catch(() => {});
+          });
+
+          addUnsubscriber(`messages-${conversationId}`, unsub);
+        } catch (err) {
+          console.error("[Chat] subscribeToMessages threw:", err);
+          setFirebaseError(true);
+        }
+      })
+      .catch((err) => {
+        console.error("[Chat] waitForFirebaseAuth failed:", err?.message);
+        if (!cancelled) setFirebaseError(true);
       });
 
-      addUnsubscriber(`messages-${conversationId}`, unsub);
-
-      return () => {
-        removeUnsubscriber(`messages-${conversationId}`);
-      };
-    } catch {
-      setFirebaseError(true);
-    }
+    return () => {
+      cancelled = true;
+      removeUnsubscriber(`messages-${conversationId}`);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId, userId]);
 
@@ -143,25 +165,34 @@ export default function ChatPage() {
   useEffect(() => {
     if (!conversationId || !otherUserId || firebaseError) return;
 
-    try {
-      const unsub = subscribeToTypingIndicator(
-        conversationId,
-        otherUserId,
-        (isTyping) => setTyping(conversationId, isTyping)
-      );
+    let cancelled = false;
 
-      addUnsubscriber(`typing-${conversationId}`, unsub);
+    waitForFirebaseAuth()
+      .then(() => {
+        if (cancelled) return;
 
-      return () => {
-        removeUnsubscriber(`typing-${conversationId}`);
-        // Clean up own typing indicator on unmount
-        if (userId) {
-          setTypingIndicator(conversationId, userId, false).catch(() => {});
+        try {
+          const unsub = subscribeToTypingIndicator(
+            conversationId,
+            otherUserId,
+            (isTyping) => setTyping(conversationId, isTyping)
+          );
+
+          addUnsubscriber(`typing-${conversationId}`, unsub);
+        } catch {
+          // Firebase not configured
         }
-      };
-    } catch {
-      // Firebase not configured
-    }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+      removeUnsubscriber(`typing-${conversationId}`);
+      // Clean up own typing indicator on unmount
+      if (userId) {
+        setTypingIndicator(conversationId, userId, false).catch(() => {});
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId, otherUserId, firebaseError]);
 
@@ -185,6 +216,7 @@ export default function ChatPage() {
     const text = inputText.trim();
     setInputText("");
     setIsSending(true);
+    posthog?.capture("message_sent", { length: text.length });
 
     // Reset textarea height
     if (inputRef.current) {
@@ -209,12 +241,14 @@ export default function ChatPage() {
     setOptimisticMessages((prev) => [...prev, optimisticMsg]);
 
     try {
+      console.log("[Chat] Sending message:", { conversationId, userId, otherUserId });
       await sendMessageToFirebase(
         conversationId,
         userId,
         otherUserId,
         text
       );
+      console.log("[Chat] Message sent successfully");
 
       // Push notification (fire-and-forget)
       post(ENDPOINTS.NOTIFICATIONS.MESSAGE_SENT, {
@@ -223,7 +257,8 @@ export default function ChatPage() {
         message_preview:
           text.length > 100 ? text.slice(0, 100) + "..." : text,
       }).catch(() => {});
-    } catch {
+    } catch (err) {
+      console.error("[Chat] Send failed:", err);
       // Mark optimistic message as failed
       setOptimisticMessages((prev) =>
         prev.map((m) =>
@@ -497,6 +532,13 @@ export default function ChatPage() {
 
       {/* ─── Messages ─── */}
       <div className="flex-1 overflow-y-auto px-4 py-3">
+        {!firebaseReady && !firebaseError && (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-white/20 animate-spin mb-3" />
+            <p className="text-white/20 text-sm">Connecting...</p>
+          </div>
+        )}
+
         {firebaseError && filteredMessages.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 rounded-full bg-card flex items-center justify-center mb-4">
@@ -702,7 +744,7 @@ export default function ChatPage() {
       {/* ─── Input ─── */}
       <div className="px-3 pt-2 pb-4 md:pb-3 shrink-0">
         <div className="flex items-end gap-2">
-          <div className="flex-1 bg-card rounded-full px-4 min-h-[44px] max-h-[120px] flex items-end border border-white/[0.06]">
+          <div className="flex-1 bg-card rounded-full px-4 min-h-[44px] max-h-[120px] flex items-end border border-white/[0.06] focus-within:border-white/20 transition-colors">
             <textarea
               ref={inputRef}
               value={inputText}
@@ -711,7 +753,7 @@ export default function ChatPage() {
               placeholder="Type a message..."
               maxLength={1000}
               rows={1}
-              className="flex-1 bg-transparent text-white text-[15px] placeholder:text-white/25 focus:outline-none resize-none py-2.5 leading-5"
+              className="flex-1 bg-transparent text-white text-[15px] placeholder:text-white/25 focus:outline-none focus-visible:outline-none resize-none py-2.5 leading-5"
               style={{ minHeight: "20px", maxHeight: "100px" }}
             />
           </div>

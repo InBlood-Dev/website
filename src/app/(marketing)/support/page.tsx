@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import LegalPoliciesGrid from "@/components/legal/LegalPoliciesGrid";
 
 export default function SupportPage() {
   return (
@@ -136,35 +137,7 @@ export default function SupportPage() {
         <section className="mb-14">
           <h2 className="text-xl font-bold text-white mb-6">Policies & Guidelines</h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              { label: "Privacy Policy", href: "/privacy" },
-              { label: "Terms of Service", href: "/terms" },
-              { label: "Community Guidelines", href: "/community-guidelines" },
-              { label: "Safety Tips", href: "/safety-tips" },
-            ].map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="flex items-center justify-between px-5 py-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/15 transition-all duration-300 group"
-              >
-                <span className="text-white/60 text-sm font-medium group-hover:text-white transition-colors">
-                  {link.label}
-                </span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-white/20 group-hover:text-white/50 transition-colors"
-                >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </Link>
-            ))}
+            <LegalPoliciesGrid />
           </div>
         </section>
 
@@ -183,11 +156,8 @@ export default function SupportPage() {
             &copy; {new Date().getFullYear()} InBlood. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="text-[11px] text-white/25 hover:text-white/50 transition-colors">
-              Privacy
-            </Link>
-            <Link href="/terms" className="text-[11px] text-white/25 hover:text-white/50 transition-colors">
-              Terms
+            <Link href="/legal" className="text-[11px] text-white/25 hover:text-white/50 transition-colors">
+              Legal
             </Link>
             <Link href="/" className="text-[11px] text-white/25 hover:text-white/50 transition-colors">
               Home

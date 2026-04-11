@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import LegalFooterLinks from "@/components/legal/LegalFooterLinks";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -602,19 +603,7 @@ export default function AboutPage() {
             <div data-footer-col>
               <p className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-5 font-medium">Legal</p>
               <ul className="space-y-3">
-                {[
-                  { label: "Privacy Policy", href: "/privacy" },
-                  { label: "Terms of Service", href: "/terms" },
-                  { label: "Cookie Policy", href: "/cookie-policy" },
-                  { label: "Safety Tips", href: "/safety-tips" },
-                  { label: "Community Guidelines", href: "/community-guidelines" },
-                ].map((link) => (
-                  <li key={link.label}>
-                    <Link href={link.href} className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                <LegalFooterLinks />
               </ul>
             </div>
 

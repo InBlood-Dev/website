@@ -7,6 +7,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useAuthStore } from "@/stores/auth.store";
+import LegalFooterLinks from "@/components/legal/LegalFooterLinks";
 
 declare global {
   interface Window {
@@ -772,8 +773,6 @@ export default function LandingPage() {
                     { label: "Home", href: "/" },
                     { label: "About", href: "/about" },
                     { label: "Login", href: "/" },
-                    { label: "Privacy", href: "/privacy" },
-                    { label: "Terms", href: "/terms" },
                   ].map((link) => (
                     <li key={link.label}>
                       <Link href={link.href} className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light">
@@ -786,19 +785,7 @@ export default function LandingPage() {
               <div className="text-right">
                 <p className="text-[11px] uppercase tracking-[0.2em] text-white/25 mb-5 font-medium">Legal</p>
                 <ul className="space-y-3">
-                  {[
-                    { label: "Privacy Policy", href: "/privacy" },
-                    { label: "Terms of Service", href: "/terms" },
-                    { label: "Cookie Policy", href: "/cookie-policy" },
-                    { label: "Safety Tips", href: "/safety-tips" },
-                    { label: "Community Guidelines", href: "/community-guidelines" },
-                  ].map((link) => (
-                    <li key={link.label}>
-                      <Link href={link.href} className="text-white/35 text-[13px] hover:text-white transition-colors duration-300 font-light">
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
+                  <LegalFooterLinks />
                 </ul>
               </div>
             </div>

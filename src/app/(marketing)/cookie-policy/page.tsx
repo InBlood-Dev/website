@@ -1,7 +1,5 @@
-"use client";
-
-import LegalPageContent from "@/components/legal/LegalPageContent";
+import { redirect } from "next/navigation";
 
 export default function CookiePolicyPage() {
-  return <LegalPageContent slug="cookie-policy" fallbackTitle="Cookie Policy" />;
+  redirect("/legal?doc=cookie-policy");
 }

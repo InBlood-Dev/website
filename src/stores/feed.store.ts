@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { get as apiGet, post } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
+import { posthog } from "@/lib/analytics/posthog";
 import type {
   RecommendedUser,
   DiscoveryFeedResponse,
@@ -97,7 +98,10 @@ export const useFeedStore = create<FeedState & FeedActions>()((set, get) => ({
       target_user_id: userId,
     });
 
+    posthog?.capture("discovery_like", { matched: !!response.data.is_matched });
+
     if (response.data.is_matched && response.data.match) {
+      posthog?.capture("match_created", { source: "like" });
       const user = get().users.find((u) => u.user_id === userId);
       set({
         matchData: {
@@ -132,7 +136,10 @@ export const useFeedStore = create<FeedState & FeedActions>()((set, get) => ({
       { target_user_id: userId }
     );
 
+    posthog?.capture("discovery_super_like", { matched: !!response.data.is_matched });
+
     if (response.data.is_matched && response.data.match) {
+      posthog?.capture("match_created", { source: "super_like" });
       const user = get().users.find((u) => u.user_id === userId);
       set({
         matchData: {
@@ -162,6 +169,7 @@ export const useFeedStore = create<FeedState & FeedActions>()((set, get) => ({
   },
 
   pass: async (userId) => {
+    posthog?.capture("discovery_pass");
     const response = await post<PassResponse>(ENDPOINTS.INTERACTIONS.PASS, {
       target_user_id: userId,
     });
