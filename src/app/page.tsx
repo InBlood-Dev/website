@@ -548,6 +548,40 @@ export default function LandingPage() {
               </div>
             </div>
 
+            {/* Telegram Group */}
+            <a
+              href="https://t.me/+dtx5sfkY5V1mN2Fl"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-3.5 w-full rounded-2xl px-4 py-3.5 transition-all duration-300 hover:-translate-y-0.5"
+              style={{
+                background: "linear-gradient(135deg, #26A5E420, #26A5E408)",
+                border: "1px solid #26A5E430",
+              }}
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110"
+                style={{ background: "linear-gradient(135deg, #26A5E430, #1a8fcf30)" }}
+              >
+                <svg className="w-5 h-5" style={{ color: "#26A5E4" }} viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0h-.056zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-white/80 text-sm font-medium group-hover:text-white transition-colors">Join Our Telegram Group</span>
+                  <span
+                    className="text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider"
+                    style={{ background: "#26A5E420", color: "#26A5E4" }}
+                  >
+                    Join
+                  </span>
+                </div>
+                <p className="text-white/25 text-[11px] mt-0.5">Connect with the inBlood community</p>
+              </div>
+              <svg className="w-4 h-4 text-white/10 group-hover:text-white/40 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+            </a>
+
           </div>
 
         </div>
