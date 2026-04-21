@@ -327,10 +327,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <p className="text-white/70 text-[18px] md:text-[22px] leading-relaxed max-w-2xl font-light mb-8">
-            Is it lust or love? Let&apos;s figure it out at Inblood &mdash; Temptation, Obsession you can&apos;t escape.
-          </p>
-          <div className="flex gap-3 flex-wrap justify-center">
+          <div className="flex gap-3 flex-wrap justify-center mt-8">
             {/* <Link href="/about" className="inline-block rounded-full px-10 py-4 border border-white/20 text-white text-[12px] uppercase tracking-[0.15em] font-medium hover:bg-white hover:text-black transition-all">
               About Us
             </Link> */}
