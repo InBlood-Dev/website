@@ -43,6 +43,7 @@ export default function LandingPage() {
   const [gsiReady, setGsiReady] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(true);
   const [showTermsError, setShowTermsError] = useState(false);
+  const [heroInView, setHeroInView] = useState(true);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -109,9 +110,22 @@ export default function LandingPage() {
       const currentY = window.scrollY;
       setNavHidden(currentY > 100 && currentY > lastScrollY.current);
       lastScrollY.current = currentY;
+
+      const heroEl = heroRef.current;
+      if (heroEl) {
+        const rect = heroEl.getBoundingClientRect();
+        setHeroInView(rect.bottom > 80);
+      } else {
+        setHeroInView(currentY < window.innerHeight * 0.7);
+      }
     };
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -736,7 +750,18 @@ export default function LandingPage() {
         href="https://whatsapp.com/channel/0029VbCiUaNJf05WMHQji23u"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg shadow-[#25D366]/30 hover:scale-110 hover:shadow-xl hover:shadow-[#25D366]/40 transition-all duration-300"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg shadow-[#25D366]/30 hover:scale-110 hover:shadow-xl hover:shadow-[#25D366]/40"
+        style={{
+          transform: heroInView ? "translateX(0)" : "translateX(200px)",
+          opacity: heroInView ? 1 : 0,
+          pointerEvents: heroInView ? "auto" : "none",
+          visibility: heroInView ? "visible" : "hidden",
+          transition: heroInView
+            ? "transform 500ms ease-out, opacity 500ms ease-out, visibility 0s linear 0s"
+            : "transform 500ms ease-in, opacity 500ms ease-in, visibility 0s linear 500ms",
+        }}
+        aria-hidden={!heroInView}
+        tabIndex={heroInView ? 0 : -1}
         aria-label="WhatsApp"
       >
         <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="currentColor">
