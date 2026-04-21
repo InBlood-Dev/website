@@ -309,25 +309,13 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-black/60 z-0" />
 
         <div className="max-w-[1400px] mx-auto w-full relative z-10 flex flex-col items-center text-center">
-          <div className="mb-8">
-            <div className="overflow-hidden">
-              <h1 className="text-[clamp(3.5rem,10vw,11rem)] font-black text-white leading-[0.9] tracking-[-0.04em] uppercase">
-                <span className="text-primary">Welcome</span> to
-              </h1>
-            </div>
-            <div className="overflow-hidden">
-              <h1 className="text-[clamp(3.5rem,10vw,11rem)] font-black text-white leading-[0.9] tracking-[-0.04em] uppercase">
-                Adult
-              </h1>
-            </div>
-            <div className="overflow-hidden">
-              <h1 className="text-[clamp(3.5rem,10vw,11rem)] font-black text-white leading-[0.9] tracking-[-0.04em] uppercase">
-                <span className="text-primary">Community</span>
-              </h1>
-            </div>
+          <div className="overflow-hidden">
+            <h1 className="text-[clamp(1.25rem,4vw,4rem)] font-black leading-[1] tracking-[-0.03em] uppercase whitespace-nowrap">
+              <span className="text-white">Welcome to</span> <span className="text-primary">Adult</span> <span className="text-white">Community</span>
+            </h1>
           </div>
 
-          <div className="flex gap-3 flex-wrap justify-center mt-8">
+          <div className="flex gap-3 flex-wrap justify-center mt-1">
             {/* <Link href="/about" className="inline-block rounded-full px-10 py-4 border border-white/20 text-white text-[12px] uppercase tracking-[0.15em] font-medium hover:bg-white hover:text-black transition-all">
               About Us
             </Link> */}
