@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -37,8 +36,6 @@ export default function LandingPage() {
   const marqueeRef = useRef<HTMLDivElement>(null);
   const orbitLeftRef = useRef<HTMLDivElement>(null);
   const orbitRightRef = useRef<HTMLDivElement>(null);
-  const [navHidden, setNavHidden] = useState(false);
-  const lastScrollY = useRef(0);
   const [isLoading, setIsLoading] = useState(false);
   const [gsiReady, setGsiReady] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(true);
@@ -107,16 +104,12 @@ export default function LandingPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentY = window.scrollY;
-      setNavHidden(currentY > 100 && currentY > lastScrollY.current);
-      lastScrollY.current = currentY;
-
       const heroEl = heroRef.current;
       if (heroEl) {
         const rect = heroEl.getBoundingClientRect();
-        setHeroInView(rect.bottom > 80);
+        setHeroInView(rect.bottom >= window.innerHeight - 40);
       } else {
-        setHeroInView(currentY < window.innerHeight * 0.7);
+        setHeroInView(window.scrollY < 40);
       }
     };
     handleScroll();
@@ -301,26 +294,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 opacity-[0.06] mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundRepeat: "repeat", backgroundSize: "128px 128px" }} />
       </div>
 
-      {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 animate-[navSlide_0.8s_ease-out_both] ${navHidden ? "-translate-y-full" : "translate-y-0"}`}>
-        <div className="max-w-[1400px] mx-auto flex items-center justify-center md:justify-between h-20 px-8 md:px-16">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="relative w-9 h-9 flex items-center justify-center">
-              <div className="absolute -inset-2 rounded-full bg-red-500/40 blur-[12px] animate-pulse" />
-              <div className="absolute -inset-1 rounded-full bg-primary/30 blur-[6px]" />
-              <Image src="/logo.png" alt="InBlood" width={28} height={28} className="relative z-10 object-contain" />
-            </div>
-            <span className="text-sm tracking-[0.15em]" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 900 }}><span className="text-primary">in</span><span className="text-white">Blood</span></span>
-          </Link>
-          {/* <div className="hidden md:flex items-center gap-6">
-            <Link href="/about" className="text-[12px] text-white/50 hover:text-white transition-colors uppercase tracking-[0.15em]">
-              About
-            </Link>
-          </div> */}
-        </div>
-      </nav>
-
-      {/* Hero - Find Your Perfect Match */}
+      {/* Hero - Welcome to Adult Community */}
       <section ref={heroRef} className="relative z-[1] min-h-screen flex flex-col justify-center pt-20 pb-12 px-8 md:px-16 overflow-hidden">
         {/* Background Video */}
         <video
@@ -338,17 +312,17 @@ export default function LandingPage() {
           <div className="mb-8">
             <div className="overflow-hidden">
               <h1 className="text-[clamp(3.5rem,10vw,11rem)] font-black text-white leading-[0.9] tracking-[-0.04em] uppercase">
-                <span className="text-primary">Find Your</span>
+                <span className="text-primary">Welcome</span> to
               </h1>
             </div>
             <div className="overflow-hidden">
               <h1 className="text-[clamp(3.5rem,10vw,11rem)] font-black text-white leading-[0.9] tracking-[-0.04em] uppercase">
-                Perfect
+                Adult
               </h1>
             </div>
             <div className="overflow-hidden">
               <h1 className="text-[clamp(3.5rem,10vw,11rem)] font-black text-white leading-[0.9] tracking-[-0.04em] uppercase">
-                <span className="text-primary">Match</span> Today.
+                <span className="text-primary">Community</span>
               </h1>
             </div>
           </div>
