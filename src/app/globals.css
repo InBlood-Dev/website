@@ -157,6 +157,52 @@ body.modal-open {
   100% { transform: translateY(-50%); }
 }
 
+@keyframes laserSpin {
+  0% { --laser-angle: 0deg; }
+  100% { --laser-angle: 360deg; }
+}
+
+@property --laser-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.laser-btn {
+  position: relative;
+  isolation: isolate;
+}
+
+.laser-btn::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--laser-angle),
+    transparent 0deg,
+    transparent 320deg,
+    #ff1a1a 350deg,
+    #ffffff 360deg,
+    #ff1a1a 370deg,
+    transparent 400deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  filter: drop-shadow(0 0 6px #ff1a1a) drop-shadow(0 0 12px rgba(255, 26, 26, 0.6));
+}
+
+.laser-btn:hover::before {
+  opacity: 1;
+  animation: laserSpin 1.6s linear infinite;
+}
+
 /* Noise texture overlay */
 .noise::after {
   content: '';

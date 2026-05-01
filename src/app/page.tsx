@@ -26,6 +26,24 @@ declare global {
 
 gsap.registerPlugin(ScrollTrigger);
 
+const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.inblood.app&pcampaignid=web_share";
+
+function PlayStoreOverlay({ variant = "default" }: { variant?: "default" | "img" }) {
+  const groupClass = variant === "img" ? "group-hover/img:opacity-100" : "group-hover:opacity-100";
+  return (
+    <div className={`pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 ${groupClass} transition-opacity duration-300 z-10`}>
+      <div className="flex items-center gap-2 px-5 py-3 rounded-full bg-black/80 backdrop-blur-sm border border-white/20 shadow-[0_0_30px_rgba(220,38,38,0.4)]">
+        <svg className="w-5 h-5" viewBox="0 0 48 48">
+          <path fill="#32BBFF" d="M3.999,4.793C3.477,5.342,3.171,6.196,3.171,7.302v33.396c0,1.106,0.305,1.96,0.828,2.509l0.111,0.108L23.034,24.22v-0.44L4.111,4.685L3.999,4.793z"/>
+          <path fill="#FFD500" d="M29.336,30.522l-6.302-6.302v-0.44l6.303-6.303l0.142,0.081l7.466,4.243c2.132,1.211,2.132,3.193,0,4.405l-7.466,4.236L29.336,30.522z"/>
+          <path fill="#FF3333" d="M29.478,30.441L23.034,24L3.999,43.207c0.703,0.744,1.864,0.836,3.171,0.094L29.478,30.441z"/>
+          <path fill="#00C853" d="M29.478,17.559L7.171,4.699C5.864,3.957,4.703,4.049,3.999,4.793L23.034,24L29.478,17.559z"/>
+        </svg>
+        <span className="text-white text-xs font-bold uppercase tracking-[0.15em]">Get the App</span>
+      </div>
+    </div>
+  );
+}
 
 export default function LandingPage() {
   const router = useRouter();
@@ -308,22 +326,31 @@ export default function LandingPage() {
         </video>
         <div className="absolute inset-0 bg-black/60 z-0" />
 
-        <div className="max-w-[1400px] mx-auto w-full relative z-10 flex flex-col items-center text-center">
-          <div className="overflow-hidden">
-            <h1 className="text-[clamp(1.25rem,4vw,4rem)] font-black leading-[1] tracking-[-0.03em] uppercase whitespace-nowrap">
-              <span className="text-white">Welcome to</span> <span className="text-primary">Adult</span> <span className="text-white">Community</span>
+        <div className="max-w-[1400px] mx-auto w-full relative z-10 flex flex-col items-center text-center gap-12">
+          {/* Eyebrow heading with decorative accent lines */}
+          <div className="flex items-center gap-5">
+            <span className="h-px w-10 md:w-16 bg-gradient-to-r from-transparent to-white/40" />
+            <h1 className="text-2xl font-light whitespace-nowrap">
+              <span className="text-white/90">Welcome to</span> <span className="text-primary font-medium">Adult</span> <span className="text-white/90">Community</span>
             </h1>
+            <span className="h-px w-10 md:w-16 bg-gradient-to-l from-transparent to-white/40" />
           </div>
 
-          <div className="flex gap-3 flex-wrap justify-center mt-1">
-            {/* <Link href="/about" className="inline-block rounded-full px-10 py-4 border border-white/20 text-white text-[12px] uppercase tracking-[0.15em] font-medium hover:bg-white hover:text-black transition-all">
-              About Us
-            </Link> */}
-            <a href="https://play.google.com/store/apps/details?id=com.inblood.app&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full px-10 py-4 bg-primary text-white text-[12px] uppercase tracking-[0.15em] font-medium hover:bg-primary-dark transition-all">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-1.4h-.001l-2.49 2.49-2.302-2.302 2.302-2.302 2.49 2.49a.999.999 0 010 1.623zm-3.906-2.808L2.855 2.166l10.937 6.333z"/></svg>
-              Download App
-            </a>
-          </div>
+          {/* Primary CTA */}
+          <a href="https://play.google.com/store/apps/details?id=com.inblood.app&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" className="laser-btn group relative flex items-center justify-center gap-3 px-10 py-6 text-base font-bold rounded-2xl uppercase tracking-[0.15em] bg-black border border-primary/40 text-primary hover:border-primary hover:shadow-[0_0_40px_rgba(220,38,38,0.5)] transition-all duration-300 overflow-hidden min-w-[360px]">
+            <svg className="w-6 h-6 relative z-10" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#32BBFF" d="M3.999,4.793C3.477,5.342,3.171,6.196,3.171,7.302v33.396c0,1.106,0.305,1.96,0.828,2.509l0.111,0.108L23.034,24.22v-0.44L4.111,4.685L3.999,4.793z"/>
+              <path fill="#FFD500" d="M29.336,30.522l-6.302-6.302v-0.44l6.303-6.303l0.142,0.081l7.466,4.243c2.132,1.211,2.132,3.193,0,4.405l-7.466,4.236L29.336,30.522z"/>
+              <path fill="#FF3333" d="M29.478,30.441L23.034,24L3.999,43.207c0.703,0.744,1.864,0.836,3.171,0.094L29.478,30.441z"/>
+              <path fill="#00C853" d="M29.478,17.559L7.171,4.699C5.864,3.957,4.703,4.049,3.999,4.793L23.034,24L29.478,17.559z"/>
+            </svg>
+            <span className="relative z-10">Download the App</span>
+          </a>
+
+          {/* Supporting micro-copy */}
+          <p className="text-[11px] uppercase tracking-[0.3em] text-white/40 font-light -mt-4">
+            Free · Available on Google Play
+          </p>
         </div>
 
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-10">
@@ -334,105 +361,126 @@ export default function LandingPage() {
       </section>
 
       {/* Login Section */}
-      <section id="hero-login" className="relative min-h-screen flex items-center justify-center px-6 md:px-12">
+      <section id="hero-login" className="relative min-h-screen flex items-center justify-center px-6 md:px-12 py-16 overflow-hidden">
 
-        <div className="w-full max-w-md relative z-10">
-
-          <div data-hero-line className="space-y-4">
-            <p className="text-white/40 text-2xl text-center font-light">Sign in to explore, connect, and find your match</p>
-            <button
-              onClick={handleGoogleLogin}
-              disabled={isLoading || !gsiReady}
-              className={`group relative w-full flex items-center justify-center gap-3 px-6 py-5 text-sm font-bold rounded-2xl uppercase tracking-[0.15em] transition-all duration-300 disabled:opacity-50 overflow-hidden ${
-                acceptedTerms
-                  ? "bg-black border border-primary/40 text-primary hover:border-primary hover:shadow-[0_0_30px_rgba(220,38,38,0.3)]"
-                  : "bg-black/50 border border-white/10 text-white/40 cursor-not-allowed"
-              }`}
-            >
-              {acceptedTerms && <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />}
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <svg className="w-5 h-5 relative z-10" viewBox="0 0 24 24">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill={acceptedTerms ? "#dc2626" : "#666"} />
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill={acceptedTerms ? "#ff4444" : "#555"} />
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill={acceptedTerms ? "#b91c1c" : "#555"} />
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill={acceptedTerms ? "#ef4444" : "#666"} />
-                </svg>
-              )}
-              <span className="relative z-10">Continue with Google</span>
-            </button>
-
-            {/* Terms checkbox */}
-            <label className="flex items-center justify-center gap-3 cursor-pointer group">
-              <div className="relative mt-0.5">
-                <input
-                  type="checkbox"
-                  checked={acceptedTerms}
-                  onChange={(e) => {
-                    setAcceptedTerms(e.target.checked);
-                    if (e.target.checked) setShowTermsError(false);
-                  }}
-                  className="sr-only peer"
-                />
-                <div className="w-5 h-5 rounded border-2 border-white/20 peer-checked:border-white peer-checked:bg-white transition-all flex items-center justify-center">
-                  {acceptedTerms && (
-                    <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </div>
-              </div>
-              <span className="text-white/40 text-xs leading-relaxed group-hover:text-white/60 transition-colors">
-                I agree to the{" "}
-                <a href="/terms" className="text-white/70 underline underline-offset-2 hover:text-white transition-colors" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a>{" "}
-                and{" "}
-                <a href="/privacy" className="text-white/70 underline underline-offset-2 hover:text-white transition-colors" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
-              </span>
-            </label>
-            {showTermsError && (
-              <p className="text-red-400 text-xs animate-pulse text-center">Please accept the Terms & Conditions to continue</p>
-            )}
+        {/* Background marquees */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 flex flex-col justify-center gap-6 md:gap-10">
+          <div className="overflow-hidden">
+            <div className="flex whitespace-nowrap animate-[marqueeLeft_60s_linear_infinite] will-change-transform">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <span key={i} className="text-[14vw] md:text-[10vw] font-black uppercase tracking-tighter leading-none text-white/[0.04] px-6">
+                  Connect · Love · Belong · Explore · Match · Community ·
+                </span>
+              ))}
+            </div>
           </div>
 
-          {/* Community Links */}
-          <div data-hero-line className="mt-8">
-            {/* Glowing rainbow line */}
-            <div className="relative mb-8">
-              <div
-                className="h-[2px] w-full rounded-full"
-                style={{
-                  background: "linear-gradient(90deg, transparent, #000, #dc2626, #ff0000, #dc2626, #000, transparent)",
-                  backgroundSize: "200% 100%",
-                  animation: "rainbowShimmer 3s linear infinite",
-                }}
-              />
-              <div
-                className="absolute inset-0 h-[2px] w-full rounded-full blur-md opacity-80"
-                style={{
-                  background: "linear-gradient(90deg, transparent, #000, #dc2626, #ff0000, #dc2626, #000, transparent)",
-                  backgroundSize: "200% 100%",
-                  animation: "rainbowShimmer 3s linear infinite",
-                }}
-              />
+          <div className="overflow-hidden">
+            <div className="flex whitespace-nowrap animate-[marqueeRight_75s_linear_infinite] will-change-transform" style={{ transform: "translateX(-50%)" }}>
+              {Array.from({ length: 2 }).map((_, i) => (
+                <span key={i} className="text-[16vw] md:text-[12vw] font-black uppercase tracking-tighter leading-none px-6"
+                  style={{
+                    background: "linear-gradient(90deg, transparent, rgba(220,38,38,0.18), transparent)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}>
+                  inBlood · inBlood · inBlood · inBlood ·
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="overflow-hidden">
+            <div className="flex whitespace-nowrap animate-[marqueeLeft_90s_linear_infinite] will-change-transform">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <span key={i} className="text-[14vw] md:text-[10vw] font-black uppercase tracking-tighter leading-none text-white/[0.03] px-6 italic">
+                  Pride · Authentic · Safe · Real · Together · Free ·
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full max-w-lg relative z-10">
+
+          {/* Glass card */}
+          <div className="relative rounded-3xl bg-gradient-to-b from-white/[0.04] to-white/[0.01] border border-white/10 backdrop-blur-xl p-8 md:p-10 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
+            {/* Subtle inner glow */}
+            <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-b from-primary/[0.04] via-transparent to-transparent" />
+
+            <div data-hero-line className="relative space-y-6">
+              <div className="text-center space-y-2">
+                <p className="text-[10px] uppercase tracking-[0.4em] text-primary/70 font-medium">Sign in</p>
+                <p className="text-white text-2xl md:text-3xl font-light leading-tight">
+                  Explore, connect, and<br />find your <span className="text-primary font-medium">match</span>
+                </p>
+              </div>
+
+              <button
+                onClick={handleGoogleLogin}
+                disabled={isLoading || !gsiReady}
+                className={`group relative w-full flex items-center justify-center gap-3 px-6 py-5 text-sm font-bold rounded-2xl uppercase tracking-[0.15em] transition-all duration-300 disabled:opacity-50 overflow-hidden ${
+                  acceptedTerms
+                    ? "bg-black border border-primary/40 text-primary hover:border-primary hover:shadow-[0_0_30px_rgba(220,38,38,0.3)]"
+                    : "bg-black/50 border border-white/10 text-white/40 cursor-not-allowed"
+                }`}
+              >
+                {acceptedTerms && <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />}
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <svg className="w-5 h-5 relative z-10" viewBox="0 0 24 24">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill={acceptedTerms ? "#dc2626" : "#666"} />
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill={acceptedTerms ? "#ff4444" : "#555"} />
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill={acceptedTerms ? "#b91c1c" : "#555"} />
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill={acceptedTerms ? "#ef4444" : "#666"} />
+                  </svg>
+                )}
+                <span className="relative z-10">Continue with Google</span>
+              </button>
+
+              {/* Terms checkbox */}
+              <label className="flex items-start justify-center gap-3 cursor-pointer group">
+                <div className="relative mt-0.5 shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => {
+                      setAcceptedTerms(e.target.checked);
+                      if (e.target.checked) setShowTermsError(false);
+                    }}
+                    className="sr-only peer"
+                  />
+                  <div className="w-5 h-5 rounded border-2 border-white/20 peer-checked:border-white peer-checked:bg-white transition-all flex items-center justify-center">
+                    {acceptedTerms && (
+                      <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <span className="text-white/40 text-xs leading-relaxed group-hover:text-white/60 transition-colors">
+                  I agree to the{" "}
+                  <a href="/terms" className="text-white/70 underline underline-offset-2 hover:text-white transition-colors" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a>{" "}
+                  and{" "}
+                  <a href="/privacy" className="text-white/70 underline underline-offset-2 hover:text-white transition-colors" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
+                </span>
+              </label>
+              {showTermsError && (
+                <p className="text-red-400 text-xs animate-pulse text-center">Please accept the Terms & Conditions to continue</p>
+              )}
             </div>
 
-            <h3
-              className="text-lg font-black uppercase tracking-[0.25em] text-center mb-8"
-              style={{
-                background: "linear-gradient(90deg, #dc2626, #ff0000, #fff, #ff0000, #dc2626)",
-                backgroundSize: "200% 100%",
-                animation: "rainbowShimmer 3s linear infinite",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Join Our Community
-            </h3>
+            {/* Divider */}
+            <div className="relative my-8 flex items-center gap-4">
+              <span className="h-px flex-1 bg-gradient-to-r from-transparent to-white/15" />
+              <span className="text-[10px] uppercase tracking-[0.3em] text-white/30 font-medium">Join the community</span>
+              <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/15" />
+            </div>
 
-            {/* Social icons row with labels */}
-            <div className="flex justify-between items-center px-2 mb-8">
+            {/* Social icons row */}
+            <div data-hero-line className="grid grid-cols-5 gap-3 md:gap-4">
               {[
                 { href: "https://www.linkedin.com/company/inblood-com/posts/?feedView=all", label: "LinkedIn", color: "#0A66C2", icon: <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/> },
                 { href: "https://www.instagram.com/inblood_community/", label: "Insta", color: "#DD2A7B", gradient: "from-[#F58529] via-[#DD2A7B] to-[#8134AF]", icon: <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678a6.162 6.162 0 100 12.324 6.162 6.162 0 100-12.324zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405a1.441 1.441 0 11-2.882 0 1.441 1.441 0 012.882 0z"/> },
@@ -448,113 +496,22 @@ export default function LandingPage() {
                   className="group flex flex-col items-center gap-2 hover:-translate-y-1 transition-all duration-300"
                 >
                   <div
-                    className="relative w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:shadow-lg"
+                    className="relative w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center transition-all duration-300"
                     style={{
                       background: social.gradient ? undefined : social.color,
-                      boxShadow: `0 0 0 rgba(0,0,0,0)`,
                     }}
                   >
                     {social.gradient && <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${social.gradient}`} />}
-                    <svg className="w-5 h-5 text-white relative z-10" viewBox="0 0 24 24" fill="currentColor">{social.icon}</svg>
+                    <svg className="w-5 h-5 md:w-6 md:h-6 text-white relative z-10" viewBox="0 0 24 24" fill="currentColor">{social.icon}</svg>
                     <div
                       className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       style={{ boxShadow: `0 4px 25px ${social.color}60, 0 0 40px ${social.color}30` }}
                     />
                   </div>
-                  <span className="text-white/30 text-[9px] tracking-wider uppercase group-hover:text-white/60 transition-colors">{social.label}</span>
+                  <span className="text-white/30 text-[9px] md:text-[10px] tracking-wider uppercase group-hover:text-white/70 transition-colors">{social.label}</span>
                 </a>
               ))}
             </div>
-
-            {/* Private Groups Section */}
-            <div className="relative rounded-2xl overflow-hidden mb-4">
-              {/* Animated rainbow border */}
-              <div
-                className="absolute inset-0 rounded-2xl opacity-40"
-                style={{
-                  background: "linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982, #E40303)",
-                  backgroundSize: "200% 100%",
-                  animation: "rainbowShimmer 4s linear infinite",
-                  padding: "1px",
-                }}
-              />
-              <div className="relative m-[1px] rounded-2xl bg-[#0a0a0a] overflow-hidden">
-                <div className="px-4 pt-4 pb-2">
-                  <p className="text-white/25 text-[9px] uppercase tracking-[0.3em] font-semibold">Private Facebook Groups</p>
-                </div>
-
-                <div className="divide-y divide-white/[0.04]">
-                  {[
-                    { href: "https://www.facebook.com/share/g/16q5Tu6uTc/", label: "Gay+", desc: "Safe space for gay & queer men", colors: ["#E40303", "#FF8C00"], iconPath: "M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" },
-                    { href: "https://www.facebook.com/share/g/1LyzKRumkw/", label: "Lesbian+", desc: "Community for lesbian & queer women", colors: ["#732982", "#E4405F"], iconPath: "M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" },
-                    { href: "https://www.facebook.com/share/g/19aKy5qVhW/", label: "Dating", desc: "Find your perfect match", colors: ["#FF8C00", "#E40303"], iconPath: "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" },
-                  ].map((group, i) => (
-                    <a
-                      key={i}
-                      href={group.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex items-center gap-3.5 px-4 py-3.5 hover:bg-white/[0.03] transition-all duration-200"
-                    >
-                      <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110"
-                        style={{ background: `linear-gradient(135deg, ${group.colors[0]}25, ${group.colors[1]}25)` }}
-                      >
-                        <svg className="w-5 h-5" style={{ color: group.colors[0] }} viewBox="0 0 24 24" fill="currentColor"><path d={group.iconPath}/></svg>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-white/80 text-sm font-medium group-hover:text-white transition-colors">{group.label}</span>
-                          <span
-                            className="text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider"
-                            style={{ background: `linear-gradient(135deg, ${group.colors[0]}30, ${group.colors[1]}30)`, color: group.colors[0] }}
-                          >
-                            Join
-                          </span>
-                        </div>
-                        <p className="text-white/25 text-[11px] mt-0.5 truncate">{group.desc}</p>
-                      </div>
-                      <svg className="w-4 h-4 text-white/10 group-hover:text-white/40 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Telegram Group */}
-            <a
-              href="https://t.me/+dtx5sfkY5V1mN2Fl"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-3.5 w-full rounded-2xl px-4 py-3.5 transition-all duration-300 hover:-translate-y-0.5"
-              style={{
-                background: "linear-gradient(135deg, #26A5E420, #26A5E408)",
-                border: "1px solid #26A5E430",
-              }}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110"
-                style={{ background: "linear-gradient(135deg, #26A5E430, #1a8fcf30)" }}
-              >
-                <svg className="w-5 h-5" style={{ color: "#26A5E4" }} viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0h-.056zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-white/80 text-sm font-medium group-hover:text-white transition-colors">Join Our Telegram Group</span>
-                  <span
-                    className="text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider"
-                    style={{ background: "#26A5E420", color: "#26A5E4" }}
-                  >
-                    Join
-                  </span>
-                </div>
-                <p className="text-white/25 text-[11px] mt-0.5">Connect with the inBlood community</p>
-              </div>
-              <svg className="w-4 h-4 text-white/10 group-hover:text-white/40 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-            </a>
-
           </div>
 
         </div>
@@ -570,26 +527,28 @@ export default function LandingPage() {
             <h2 className="text-[clamp(1.5rem,6vw,7rem)] font-black text-white leading-[0.9] tracking-[-0.03em] uppercase mb-2 md:mb-4">
               Everything<br />You <span className="text-primary">Need</span>
             </h2>
-            <div className="relative group h-[250px] sm:h-[350px] md:h-[500px] overflow-hidden">
+            <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" aria-label="Download InBlood on Google Play" className="relative group block h-[250px] sm:h-[350px] md:h-[500px] overflow-hidden cursor-pointer">
               <Image src="/images/hero-pride.png" alt="Celebrating Love" fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="100vw" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 md:bottom-8 md:left-8 md:right-8">
                 <p className="text-white/80 text-[14px] sm:text-[18px] md:text-[22px] font-medium leading-snug">Celebrating love in all its beautiful forms. A safe space to be yourself, connect, and find your people.</p>
               </div>
-            </div>
+              <PlayStoreOverlay />
+            </a>
           </div>
 
           {/* --- Row 2: Asymmetric spread --- */}
           <div data-feature className="grid grid-cols-[1fr_1.2fr] gap-2 md:gap-3 mb-2 md:mb-3">
             {/* Left: tall image */}
-            <div className="relative group overflow-hidden h-[250px] sm:h-[350px] md:h-[500px]">
+            <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" aria-label="Download InBlood on Google Play" className="relative group overflow-hidden h-[250px] sm:h-[350px] md:h-[500px] cursor-pointer block">
               <Image src="/images/girls.png" alt="Nearby Discovery" fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 45vw, 45vw" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="absolute bottom-3 left-3 right-3 md:bottom-6 md:left-6 md:right-6">
                 <p className="text-white/70 text-[13px] sm:text-[16px] md:text-[20px] font-medium leading-snug mb-1 md:mb-2">Nearby Discovery</p>
                 <p className="text-white/40 text-[11px] sm:text-[13px] md:text-[15px] font-light leading-relaxed hidden sm:block">Find people close to you with location-based discovery.</p>
               </div>
-            </div>
+              <PlayStoreOverlay />
+            </a>
 
             {/* Right: card + image combo */}
             <div className="flex flex-col gap-2 md:gap-3">
@@ -603,9 +562,10 @@ export default function LandingPage() {
                     <p className="text-white/30 text-[9px] md:text-[12px]">@inblood &bull; verified</p>
                   </div>
                 </div>
-                <div className="relative h-[120px] sm:h-[180px] md:h-[220px] overflow-hidden rounded-lg md:rounded-xl">
-                  <Image src="/images/boys.png" alt="Safe & Verified" fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 55vw, 50vw" />
-                </div>
+                <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" aria-label="Download InBlood on Google Play" className="relative h-[120px] sm:h-[180px] md:h-[220px] overflow-hidden rounded-lg md:rounded-xl block group/img cursor-pointer">
+                  <Image src="/images/boys.png" alt="Safe & Verified" fill className="object-cover transition-transform duration-700 group-hover/img:scale-105" sizes="(max-width: 768px) 55vw, 50vw" />
+                  <PlayStoreOverlay variant="img" />
+                </a>
                 <p className="text-white/40 text-[11px] sm:text-[13px] md:text-[15px] font-light mt-2 md:mt-4 leading-relaxed">
                   Verify your profile, block unwanted contacts, and enjoy a safe dating experience.
                 </p>
@@ -626,12 +586,13 @@ export default function LandingPage() {
             </div>
 
             {/* Right: image */}
-            <div className="relative group">
+            <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" aria-label="Download InBlood on Google Play" className="relative group block cursor-pointer">
               <div className="relative h-[280px] sm:h-[400px] md:h-[600px] overflow-hidden">
                 <Image src="/images/menwithcat.png" alt="Premium Features" fill className="object-cover object-top transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 55vw, 50vw" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                <PlayStoreOverlay />
               </div>
-            </div>
+            </a>
           </div>
 
         </div>
