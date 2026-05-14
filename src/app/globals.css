@@ -157,6 +157,32 @@ body.modal-open {
   100% { transform: translateY(-50%); }
 }
 
+/* Laser scan effect for text */
+@keyframes laserText {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.laser-text {
+  background: linear-gradient(
+    100deg,
+    #dc2626 0%,
+    #dc2626 38%,
+    #ff5e5e 46%,
+    #ffffff 50%,
+    #ff5e5e 54%,
+    #dc2626 62%,
+    #dc2626 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: laserText 2.8s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(220, 38, 38, 0.55));
+}
+
 @keyframes laserSpin {
   0% { --laser-angle: 0deg; }
   100% { --laser-angle: 360deg; }
